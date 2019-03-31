@@ -7,15 +7,14 @@ Suppose we could easily get serialized data in JSON format, like this:
 ```JSON
 
 {
-    'sensor_1': {
-        'time_1': 'data_1',
-        'time_2': 'data_2'
+    "sensor_1": {
+        "time_1": "data_1",
+        "time_2": "data_2"
     },
-    'sensor_2': {
-        'time_1': 'data_1',
-        'time_2': 'data_2'
-    },
-    ...
+    "sensor_2": {
+        "time_1": "data_1",
+        "time_2": "data_2"
+    }
 }
 
 ```

@@ -6,3 +6,12 @@ vendor/
 
 # ignore assets
 assets/
+
+# ignore composer.lock file
+composer.lock
+
+# ignore basic test files
+test/*basic*
+
+# ignore private config files
+config/*private*

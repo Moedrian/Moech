@@ -2,6 +2,65 @@
 
 A PHP server-side project providing monitoring services for IoT devices
 
+## Overview
+
+### MySQL databases
+
+#### infomation database tables
+
+##### 1. customers
+
+This table records basic information of customers. Those who don't have orders can still sign up.
+
+column | type | null | default | extras | comments
+:--- | :--- | :--- | :--- | :--- | :---
+cust_id | int(11) | no | none | auto_increment | primary key
+cust_name | char(50) | no | none | |
+cust_province | char(20) | yes | null | |
+cust_city | char(10) | yes | null | |
+cust_address | char(50) | yes | null | |
+cust_contact | char(50) | yes | null | |
+cust_tel | char(15) | yes | null | |
+cust_mail | char(50) | yes | null | |
+
+##### 2. orders
+
+column | type | null | default | extras | comments
+:--- | :--- | :--- | :--- | :--- | :---
+order_num | int(11) | no | none | | primary key
+order_date | datetime | no | none | |
+cust_id | int(11) | no | none | | foreign key
+
+##### 3. orderitems
+
+This table lists items in each orders
+
+column | type | null | default | extras | comments
+:--- | :--- | :--- | :--- | :--- | :---
+ordernum | int(11) | no | none | | primary key
+item | char(30) | no | none | |
+charging method | char(20) | no | none | |
+
+##### 4. products
+
+This table lists the price of each service.
+
+* The total cost is accumulated according to the magnititude of those parameters requested by the customers.
+
+column | type | null | default | extras | comments
+:--- | :--- | :--- | :--- | :--- | :---
+item | char(20) | no | none | | primary key
+charging method | char(20) | no | none | |
+price | int(10) | no | none | |
+
+#### customer database tables
+
+##### 1. data_item
+
+##### 2. alert_event
+
+##### 3. default_values
+
 ## Getting Started
 
 A little PHP and MySQL knowledge along with some NoSQL, for example, Redis.
@@ -16,20 +75,6 @@ A little PHP and MySQL knowledge along with some NoSQL, for example, Redis.
   * Vue.js (for demonstration only)
 
 ### Installing
-
-A step by step series of examples that tell you how to get a development env running
-
-Say what the step will be
-
-```
-Give the example
-```
-
-And repeat
-
-```
-until finished
-```
 
 End with an example of getting some data out of the system or using it for a little demo
 
@@ -88,17 +133,9 @@ End with an example of getting some data out of the system or using it for a lit
 
 Explain what these tests test and why
 
-```
-Give an example
-```
-
 ### And coding style tests
 
 Explain what these tests test and why
-
-```
-Give an example
-```
 
 ## Deployment
 
@@ -118,10 +155,8 @@ Add additional notes about how to deploy this on a live system
 
 ## License
 
-
 ## Acknowledgments
 
 * Hat tip to anyone whose code was used
 * Inspiration
 * etc
-

@@ -10,7 +10,11 @@ A PHP server-side project providing monitoring services for IoT devices
 
 ##### 1. customers
 
-This table records basic information of customers. Those who don't have orders can still sign up.
+* This table records basic information of customers.
+
+* Those who don't have orders can still sign up.
+
+* The order number is an auth token that is visable to purchasers.
 
 column | type | null | default | extras | comments
 :--- | :--- | :--- | :--- | :--- | :---
@@ -23,27 +27,51 @@ cust_contact | char(50) | yes | null | |
 cust_tel | char(15) | yes | null | |
 cust_mail | char(50) | yes | null | |
 
-##### 2. orders
+##### 2. users
+
+* It's optional whether the new customer could provide the system manager registration info when a purchase  is made.
+
+* They can send this message later with an unique code associated with the order number, or simply, just the order num.
+
+* The cust_name column is link to cust_name in customers table. It acts like linux user group model.
 
 column | type | null | default | extras | comments
 :--- | :--- | :--- | :--- | :--- | :---
-order_num | int(11) | no | none | | primary key
+username | char(30) | no | none | | primary key
+alias | char(30) | no | none | |
+password | varchar(60) | no | none | encrypted |
+cust_name | char(50) | no | none | cust_name | foreign key
+role | char(20) | no | none | |
+
+##### 2. devices
+
+column | type | null | default | extras | comments
+:--- | :--- | :--- | :--- | :--- | :---
+dev_id | char(20) | no | none | | primary key
+cust_name | char(50) | no | none | | foreign key
+order_num | int(15) | no | none | | foreign key
+
+##### 3. orders
+
+column | type | null | default | extras | comments
+:--- | :--- | :--- | :--- | :--- | :---
+order_num | int(15) | no | none | | primary key
 order_date | datetime | no | none | |
 cust_id | int(11) | no | none | | foreign key
 
-##### 3. orderitems
+##### 4. orderitems
 
-This table lists items in each orders
+* This table lists items in each order.
 
 column | type | null | default | extras | comments
 :--- | :--- | :--- | :--- | :--- | :---
-ordernum | int(11) | no | none | | primary key
+ordernum | int(15) | no | none | | primary key
 item | char(30) | no | none | |
 charging method | char(20) | no | none | |
 
-##### 4. products
+##### 5. products
 
-This table lists the price of each service.
+* This table lists the price of each service.
 
 * The total cost is accumulated according to the magnititude of those parameters requested by the customers.
 
@@ -51,15 +79,35 @@ column | type | null | default | extras | comments
 :--- | :--- | :--- | :--- | :--- | :---
 item | char(20) | no | none | | primary key
 charging method | char(20) | no | none | |
-price | int(10) | no | none | |
+price | decimal(8,2) | no | none | |
 
 #### customer database tables
 
 ##### 1. data_item
 
+* The name format of those tables is `dev_id_para`
+* No primary keys set for those tables
+
+column | type | null | default | extras | comments
+:--- | :--- | :--- | :--- | :--- | :---
+create_time | datetime | no | none | |
+value | decimal(8,2) | no | none | |
+
 ##### 2. alert_event
 
+column | type | null | default | extras | comments
+:--- | :--- | :--- | :--- | :--- | :---
+dev_id | char(20) | no | none | | primary key
+para | char(20) | no | none | |
+occur_time | datetime | no | none || primary key
+
 ##### 3. default_values
+
+* One column could handle this function.
+
+column | type | null | default | extras | comments
+:--- | :--- | :--- | :--- | :--- | :---
+dev_id_para | decimal(8,2) | no | none | | primary key
 
 ## Getting Started
 

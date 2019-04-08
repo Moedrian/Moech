@@ -14,4 +14,4 @@ composer.lock
 test/*basic*
 
 # ignore private config files
-config/*private*
+config/

@@ -1,10 +1,9 @@
 {
   "require": {
     "workerman/workerman": "^3.5",
+    "ext-event": "*",
     "predis/predis": "^1.1",
-    "ext-pdo": "*",
-    "ext-json": "*",
-    "influxdb/influxdb-php": "^1.14",
-    "psr/log": "^1.1"
+    "ext-phpiredis": "*",
+    "ext-pdo": "*"
   }
 }

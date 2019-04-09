@@ -2,11 +2,21 @@
 
 A PHP server-side project providing monitoring services for IoT devices
 
+## Stack
+
+Considering the demand of monitoring IoT sensors or system data that come with a large quantity, nowadays there's a new kind of storage program called time series database(TSDB) optimized specially for handling and storaging data with a timestamp. But each of them requires special runtime environment configuration or high level hardware, for example,
+
+* [InfluxDB](https://github.com/influxdata/influxdb) requires SSD and more RAMs;
+* [TimescaleDB](https://github.com/timescale/timescaledb) is a package built as a PostgreSQL extension;
+* [OpenTSDB](https://github.com/OpenTSDB/opentsdb) need Apache HBase, etc.
+
+Since the present database configuration is MySQL, the original cache layer architecture plan, which deploys Redis, a NoSQL database runs in RAM in order to achieve fast querying, seems easy and economic. But if there's a chance to give TSDB a try, it's fairly feasible to switch to PostgreSQL Timescale because PHP has PDO driver as well.
+
 ## Overview
 
 ### MySQL databases
 
-#### infomation database tables
+#### information database tables
 
 ##### 1. customers
 
@@ -67,7 +77,9 @@ price | decimal(8,2) | no | none | |
 
 #### customer database tables
 
-##### 1. users
+##### 1. information
+
+###### 1. users
 
 * It's optional whether the new customer could provide the system manager registration info when a purchase  is made.
 
@@ -85,9 +97,27 @@ user_mail | char(50) | yes | null | |
 cust_name | char(50) | no | none | | foreign key
 role | char(20) | no | none | |
 
-##### 2. data_item
+###### 2. alert_event
 
-* **InnfluxDB is on the way.**
+column | type | null | default | extras | comments
+:--- | :--- | :--- | :--- | :--- | :---
+dev_id | char(20) | no | none | | primary key
+para | char(20) | no | none | |
+occur_time | datetime | no | none || primary key
+
+###### 3. default_values
+
+* One column could handle this function.
+
+column | type | null | default | extras | comments
+:--- | :--- | :--- | :--- | :--- | :---
+dev_id_para | decimal(8,2) | no | none | | primary key
+
+##### 2. values
+
+###### value_item
+
+* What about the time-series database such
 
 * The name format of those tables is `dev_id_para`
 * No primary keys set for those tables
@@ -96,22 +126,6 @@ column | type | null | default | extras | comments
 :--- | :--- | :--- | :--- | :--- | :---
 create_time | datetime | no | none | |
 value | decimal(8,2) | no | none | |
-
-##### 3. alert_event
-
-column | type | null | default | extras | comments
-:--- | :--- | :--- | :--- | :--- | :---
-dev_id | char(20) | no | none | | primary key
-para | char(20) | no | none | |
-occur_time | datetime | no | none || primary key
-
-##### 4. default_values
-
-* One column could handle this function.
-
-column | type | null | default | extras | comments
-:--- | :--- | :--- | :--- | :--- | :---
-dev_id_para | decimal(8,2) | no | none | | primary key
 
 ## Getting Started
 

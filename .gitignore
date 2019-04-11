@@ -4,8 +4,8 @@
 # ignore vendors' codes
 vendor/
 
-# ignore assets
-assets/
+# ignore private assets
+assets/private/
 
 # ignore composer.lock file
 composer.lock

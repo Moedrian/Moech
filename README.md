@@ -16,7 +16,9 @@ Since the present database configuration is MySQL, the original cache layer arch
 
 ### MySQL databases
 
-#### information database tables
+#### Vendor Database Tables
+
+![vendor_database](assets/dbschemas/vendor_database.png)
 
 ##### 1. customers
 
@@ -30,9 +32,6 @@ column | type | null | default | extras | comments
 :--- | :--- | :--- | :--- | :--- | :---
 cust_id | int(11) | no | none | auto_increment | primary key
 cust_name | char(50) | no | none | |
-cust_province | char(20) | yes | null | |
-cust_city | char(10) | yes | null | |
-cust_address | char(50) | yes | null | |
 cust_contact | char(50) | yes | null | |
 cust_tel | char(15) | yes | null | |
 cust_mail | char(50) | yes | null | |
@@ -60,8 +59,8 @@ cust_id | int(11) | no | none | | foreign key
 column | type | null | default | extras | comments
 :--- | :--- | :--- | :--- | :--- | :---
 ordernum | int(15) | no | none | | primary key
-item | char(30) | no | none | |
-charging method | char(20) | no | none | |
+item | char(30) | no | none | | foreign key
+price | decimal(6,2) | no | none | |
 
 ##### 5. products
 
@@ -75,7 +74,9 @@ item | char(20) | no | none | | primary key
 charging method | char(20) | no | none | |
 price | decimal(8,2) | no | none | |
 
-#### customer database tables
+#### Customer database tables
+
+![customer_database](assets/dbschemas/cust_databases.png)
 
 ##### 1. information
 
@@ -84,34 +85,42 @@ price | decimal(8,2) | no | none | |
 * It's optional whether the new customer could provide the system manager registration info when a purchase  is made.
 
 * They can send this message later with an unique code associated with the order number, or simply, just the order num.
-
-* The cust_name column is link to cust_name in customers table. It acts like linux user group model.
   
 column | type | null | default | extras | comments
 :--- | :--- | :--- | :--- | :--- | :---
-username | char(30) | no | none | | primary key
-alias | char(30) | no | none | |
+username | char(30) | no | none | for logging in | primary key
+alias | char(30) | yes | null | |
 password | varchar(60) | no | none | encrypted |
 user_tel | char(15) | no | none | |
 user_mail | char(50) | yes | null | |
-cust_name | char(50) | no | none | | foreign key
+group | char(40) | no | none | | primary key
 role | char(20) | no | none | |
 
-###### 2. alert_event
+###### 2. devices
+
+column | type | null | default | extras | comments
+:--- | :--- | :--- | :--- | :--- | :---
+dev_id | char(20) | no | none | | primary key
+group | char(40) | no | none | | foreign key
+
+###### 3. alert_event
 
 column | type | null | default | extras | comments
 :--- | :--- | :--- | :--- | :--- | :---
 dev_id | char(20) | no | none | | primary key
 para | char(20) | no | none | |
-occur_time | datetime | no | none || primary key
+value | decimal(8,2) | no | none | |
+occur_time | datetime | no | none | | primary key
 
-###### 3. default_values
+###### 4. default_values
 
-* One column could handle this function.
+* One column is capable to handle this function.
 
 column | type | null | default | extras | comments
 :--- | :--- | :--- | :--- | :--- | :---
-dev_id_para | decimal(8,2) | no | none | | primary key
+dev_id | char(20) | no | none | | primary key
+para | char(20) | no | none | |
+value | decimal(8,2) | no | none | |
 
 ##### 2. values
 

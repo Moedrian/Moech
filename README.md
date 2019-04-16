@@ -60,7 +60,7 @@ column | type | null | default | extras | comments
 :--- | :--- | :--- | :--- | :--- | :---
 ordernum | int(15) | no | none | | primary key
 item | char(30) | no | none | | foreign key
-price | decimal(6,2) | no | none | |
+price | float(6,2) | no | none | |
 
 ##### 5. products
 
@@ -72,7 +72,7 @@ column | type | null | default | extras | comments
 :--- | :--- | :--- | :--- | :--- | :---
 item | char(20) | no | none | | primary key
 charging method | char(20) | no | none | |
-price | decimal(8,2) | no | none | |
+price | float(6,2) | no | none | |
 
 #### Customer database tables
 
@@ -109,32 +109,28 @@ column | type | null | default | extras | comments
 :--- | :--- | :--- | :--- | :--- | :---
 dev_id | char(20) | no | none | | primary key
 para | char(20) | no | none | |
-value | decimal(8,2) | no | none | |
+value | float(8,2) | no | none | |
 occur_time | datetime | no | none | | primary key
 
 ###### 4. default_values
-
-* One column is capable to handle this function.
 
 column | type | null | default | extras | comments
 :--- | :--- | :--- | :--- | :--- | :---
 dev_id | char(20) | no | none | | primary key
 para | char(20) | no | none | |
-value | decimal(8,2) | no | none | |
+val | float(6,2) | no | none | |
 
 ##### 2. values
 
 ###### value_item
-
-* What about the time-series database such
 
 * The name format of those tables is `dev_id_para`
 * No primary keys set for those tables
 
 column | type | null | default | extras | comments
 :--- | :--- | :--- | :--- | :--- | :---
-create_time | datetime | no | none | |
-value | decimal(8,2) | no | none | |
+crt_time | datetime(3) | no | none | |
+val | float(6,2) | no | none | |
 
 ## Getting Started
 

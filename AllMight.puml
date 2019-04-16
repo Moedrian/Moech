@@ -1,0 +1,57 @@
+@startuml
+
+abstract class Device {
++ raiseAlarm()
+}
+
+abstract class Platform {
++ addCustomer()
++ addOrder()
++ addDevice()
+}
+
+abstract class Order {
+
+}
+
+abstract class DeviceManufacturer {
++ addUser()
++ modifyAlertValues()
+}
+
+abstract class DevicePurchaser {
++
+}
+
+abstract class Data {
++ writeDeviceData()
++ fetchDeviceData()
++ writeCustomerData()
++ fetchCustomerData()
+}
+
+class Vendor
+class Customer
+class User
+class Motor
+class SQLPorter
+class RedisPorter
+
+Data <|.. SQLPorter
+Data <|.. RedisPorter
+
+Platform <|.. Vendor
+SQLPorter <.. Vendor
+
+DeviceManufacturer <|.. Customer
+SQLPorter <.. Customer
+
+DevicePurchaser <|.. User
+SQLPorter <.. User
+
+Device <|.. Motor
+SQLPorter <.. Motor
+
+
+
+@enduml

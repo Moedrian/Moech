@@ -1,13 +1,13 @@
 <?php
 
-namespace DataPorter\SQL;
+namespace Data\RDB;
 
 require '../vendor/autoload.php';
 
 use PDO;
 use Conf;
 
-class SQLPorter
+class RDB
 {
     private $db_type = Conf::DB_SQL_NAME;
     private $db_host = Conf::DB_SQL_HOST;
@@ -25,10 +25,14 @@ class SQLPorter
         echo $this->$name;
     }
 
-    public function DataLink()
+    public function dataLink()
     {
         $dsn = $this->db_type . ":host=" . $this->db_host . ";dbname=" . $this->db_name;
         $conn = new PDO($dsn, $this->db_username, $this->db_password);
         return $conn;
+    }
+
+    public function addQueryGen($json) {
+        $arr = json_decode($json, true);
     }
 }

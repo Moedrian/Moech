@@ -30,10 +30,10 @@ Since the present database configuration is MySQL, the original cache layer arch
 
 column | type | null | default | extras | comments
 :--- | :--- | :--- | :--- | :--- | :---
-cust_id | int(11) | no | none | auto_increment | primary key
+cust_id | int | no | none | auto_increment | primary key
 cust_name | char(50) | no | none | |
-cust_contact | char(50) | yes | null | |
-cust_tel | char(15) | yes | null | |
+cust_contact | char(50) | no | none | |
+cust_tel | char(15) | no | none | |
 cust_mail | char(50) | yes | null | |
 
 ##### 2. devices
@@ -41,16 +41,16 @@ cust_mail | char(50) | yes | null | |
 column | type | null | default | extras | comments
 :--- | :--- | :--- | :--- | :--- | :---
 dev_id | char(20) | no | none | | primary key
-cust_name | char(50) | no | none | | foreign key
-order_num | int(15) | no | none | | foreign key
+cust_name | char(50) | no | none | |
+order_num | int | no | none | |
 
 ##### 3. orders
 
 column | type | null | default | extras | comments
 :--- | :--- | :--- | :--- | :--- | :---
-order_num | int(15) | no | none | | primary key
-order_date | datetime | no | none | |
-cust_id | int(11) | no | none | | foreign key
+order_num | int | no | none | | primary key
+order_date | date | no | none | |
+cust_id | int | no | none | |
 
 ##### 4. orderitems
 
@@ -58,8 +58,10 @@ cust_id | int(11) | no | none | | foreign key
 
 column | type | null | default | extras | comments
 :--- | :--- | :--- | :--- | :--- | :---
-ordernum | int(15) | no | none | | primary key
-item | char(30) | no | none | | foreign key
+order_num | int | no | none | | primary key
+item | char(30) | no | none | |
+charge | char(20) | no | none | |
+quantity | int | no | none | |
 price | float(6,2) | no | none | |
 
 ##### 5. products
@@ -70,7 +72,7 @@ price | float(6,2) | no | none | |
 
 column | type | null | default | extras | comments
 :--- | :--- | :--- | :--- | :--- | :---
-item | char(20) | no | none | | primary key
+item | char(30) | no | none | | primary key
 charging method | char(20) | no | none | |
 price | float(6,2) | no | none | |
 
@@ -101,7 +103,7 @@ role | char(20) | no | none | |
 column | type | null | default | extras | comments
 :--- | :--- | :--- | :--- | :--- | :---
 dev_id | char(20) | no | none | | primary key
-group | char(40) | no | none | | foreign key
+group | char(40) | no | none | |
 
 ###### 3. alert_event
 
@@ -151,15 +153,26 @@ End with an example of getting some data out of the system or using it for a lit
 
 ## Running the tests
 
+* An ideal input for an order should be like this
+
+```json
+{
+    "order": {
+        "cust_name": "Pipimi",
+        "item"
+    }
+}
+```
+
 * An ideal input for signing up should be like this:
 
 ```JSON
 {
     "customer": {
-        "name": "Pipimi",
+        "cust_contact": "Pipimi",
         "mail": "anime@kuso.com",
-        "tel": "114-514-893",
-        "company": "Pop Team Epic"
+        "cust_tel": "114-514-893",
+        "cust_name": "Pop Team Epic"
     }
 }
 ```

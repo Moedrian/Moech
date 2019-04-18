@@ -157,9 +157,20 @@ End with an example of getting some data out of the system or using it for a lit
 
 ```json
 {
-    "order": {
-        "cust_name": "Pipimi",
-        "item"
+    "orders": {
+        "cust_name": "Pop Team Epic",
+        "items": {
+            "dev_id": "YJSP114",
+            "item": "param-middle",
+            "param": "rev",
+            "quantity": "2"
+        },
+        {
+            "dev_id": "YJSP114",
+            "item": "param-high",
+            "param": "voltage-AB",
+            "quantity": "3"
+        }
     }
 }
 ```
@@ -169,10 +180,10 @@ End with an example of getting some data out of the system or using it for a lit
 ```JSON
 {
     "customer": {
+        "cust_name": "Pop Team Epic",
         "cust_contact": "Pipimi",
-        "mail": "anime@kuso.com",
         "cust_tel": "114-514-893",
-        "cust_name": "Pop Team Epic"
+        "mail": "anime@kuso.com"
     }
 }
 ```

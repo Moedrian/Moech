@@ -35,23 +35,4 @@ class RDB
         $conn = new PDO($dsn, $this->db_username, $this->db_password);
         return $conn;
     }
-
-    /**
-     * @param $table
-     * @param $json
-     *
-     * To add customers, products and simple orders only in vendor part
-     */
-    public function vendorSimpleAdd($table, $json) {
-
-        $arr = json_decode($json, true);
-
-        $db = new RDB();
-        $conn = $db->dataLink(Conf::RDB_VENDOR_DB);
-
-        $conn->beginTransaction();
-        $stmt = $conn->prepare(Conf::Vendor_DB[$table]);
-        $stmt->execute(array_values($arr[$table]));
-        $conn->commit();
-    }
 }

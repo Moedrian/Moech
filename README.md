@@ -157,19 +157,19 @@ End with an example of getting some data out of the system or using it for a lit
 
 ```json
 {
-    "orders": {
-        "cust_name": "Pop Team Epic",
-        "items": {
-            "dev_id": "YJSP114",
-            "item": "param-middle",
-            "param": "rev",
-            "quantity": "2"
+    "cust_name":"Pop Team Epic",
+    "orders":{
+        "item_1":{
+            "dev_id":"YJSP114",
+            "item":"param-middle",
+            "param":"rev",
+            "quantity":"2"
         },
-        {
-            "dev_id": "YJSP114",
-            "item": "param-high",
-            "param": "voltage-AB",
-            "quantity": "3"
+        "item_2":{
+            "dev_id":"YJSP514",
+            "item":"param-high",
+            "param":"voltage-AB",
+            "quantity":"3"
         }
     }
 }

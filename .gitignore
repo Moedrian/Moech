@@ -11,7 +11,7 @@ assets/private/
 composer.lock
 
 # ignore basic test files
-test/*basic*
+test/
 
 # ignore private config files
 config/

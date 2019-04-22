@@ -47,9 +47,21 @@ class Vendor extends Platform
         return $row->cust_id;
     }
 
-    private function getOrderID()
+    /**
+     * @param string $item
+     * @return mixed
+     */
+    private function getProductPrice($item)
     {
+        $db = new RDB();
+        $conn = $db->dataLink(Conf::RDB_VENDOR_DB);
+        $query = "select price from products where item = ?";
+        $stmt = $conn->prepare($query);
+        $stmt->execute([$item]);
 
+        $row = $stmt->fetch(PDO::class);
+
+        return $row->price;
     }
 
     /**
@@ -60,13 +72,13 @@ class Vendor extends Platform
         {
             "cust_name":"Pop Team Epic",
             "orders":{
-                {
+                "item_1":{
                     "dev_id":"YJSP114",
                     "item":"param-middle",
                     "param":"rev",
                     "quantity":"2"
                 },
-                {
+                "item_2":{
                     "dev_id":"YJSP514",
                     "item":"param-high",
                     "param":"voltage-AB",
@@ -96,14 +108,25 @@ class Vendor extends Platform
         $stmt->execute([$today, $cust_id]);
         $order_id = $conn->lastInsertId();
 
+        $vals = "";
+        $val = "";
 
-        $insert_order_items_1 = "insert into order_items values";
-        foreach ($arr['orders'] as $key => $value) {}
+        foreach ($arr['orders'] as $pk => $pv) {
+            foreach ($arr['orders'][$pk] as $ck => $cv) {
+                $val .= ($cv . ",");
+                if ($ck == 'item')
+                    $price = $this->getProductPrice($cv);
+            }
+            $val = "(" . $order_id . $val . $price . "),";
+            $vals .= $val;
+            $val = "";
+        }
 
+        $query = "insert into order_items(order_num, dev_id, item, param, quantity, price) VALUES ";
+        $query = $query . $vals;
+        $conn->exec($query);
 
         $conn->commit();
-
-
     }
 
     /**

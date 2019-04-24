@@ -128,7 +128,6 @@ class Vendor extends Platform
         $query = "insert into order_items(order_num, dev_id, item, param, quantity, price) VALUES";
         $query = $query . $vals;
         $query = substr($query . $vals, 0, -1);
-        echo $query;
         $conn->exec($query);
 
         $conn->commit();
@@ -157,6 +156,11 @@ class Vendor extends Platform
     public function addDevice($json)
     {
         // TODO: Implement addDevice() method.
+    }
+
+    public function addCustomerDB($json)
+    {
+        // TODO: Implement addCustomerDB() method.
     }
 
     /**

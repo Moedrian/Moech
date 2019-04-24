@@ -3,6 +3,9 @@
 
 namespace Vendor;
 
+require 'Platform.abstract.php';
+require 'RDB.class.php';
+
 use Conf;
 use Data\RDB\RDB;
 use \Platform;
@@ -42,7 +45,7 @@ class Vendor extends Platform
         $stmt = $conn->prepare($query);
         $stmt->execute([$cust_name]);
 
-        $row = $stmt->fetch(PDO::class);
+        $row = $stmt->fetch(PDO::FETCH_OBJ);
 
         return $row->cust_id;
     }
@@ -59,7 +62,7 @@ class Vendor extends Platform
         $stmt = $conn->prepare($query);
         $stmt->execute([$item]);
 
-        $row = $stmt->fetch(PDO::class);
+        $row = $stmt->fetch(PDO::FETCH_OBJ);
 
         return $row->price;
     }
@@ -113,17 +116,19 @@ class Vendor extends Platform
 
         foreach ($arr['orders'] as $pk => $pv) {
             foreach ($arr['orders'][$pk] as $ck => $cv) {
-                $val .= ($cv . ",");
+                $val .= ('"'. $cv . '"' . ",");
                 if ($ck == 'item')
                     $price = $this->getProductPrice($cv);
             }
-            $val = "(" . $order_id . $val . $price . "),";
+            $val = "(" . $order_id . "," . $val . $price . "),";
             $vals .= $val;
             $val = "";
         }
 
-        $query = "insert into order_items(order_num, dev_id, item, param, quantity, price) VALUES ";
+        $query = "insert into order_items(order_num, dev_id, item, param, quantity, price) VALUES";
         $query = $query . $vals;
+        $query = substr($query . $vals, 0, -1);
+        echo $query;
         $conn->exec($query);
 
         $conn->commit();

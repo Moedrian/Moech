@@ -42,13 +42,15 @@ column | type | null | default | extras | comments
 :--- | :--- | :--- | :--- | :--- | :---
 dev_id | char(20) | no | none | | primary key
 cust_name | char(50) | no | none | |
-order_num | int | no | none | |
+cust_id | int | no | none | |
+province | char(30) | no | none | |
+city | char(30) | no | none | |
 
 ##### 3. orders
 
 column | type | null | default | extras | comments
 :--- | :--- | :--- | :--- | :--- | :---
-order_num | int | no | none | | primary key
+order_num | int | no | none | auto_increment | primary key
 order_date | date | no | none | |
 cust_id | int | no | none | |
 
@@ -58,9 +60,11 @@ cust_id | int | no | none | |
 
 column | type | null | default | extras | comments
 :--- | :--- | :--- | :--- | :--- | :---
-order_num | int | no | none | | primary key
+seq_id | int | no | none | auto_increment | primary key
+dev_id | char(20) | no | none
+order_num | int | no | none | | index
 item | char(30) | no | none | |
-charge | char(20) | no | none | |
+param | char(30) | no | none | |
 quantity | int | no | none | |
 price | float(6,2) | no | none | |
 
@@ -75,6 +79,7 @@ column | type | null | default | extras | comments
 item | char(30) | no | none | | primary key
 charging method | char(20) | no | none | |
 price | float(6,2) | no | none | |
+description | text | no | none | |
 
 #### Customer database tables
 
@@ -192,33 +197,17 @@ End with an example of getting some data out of the system or using it for a lit
 
 ```JSON
 {
-    "id_01": {
-        "data": {
-            "data_persistence": {
-                "toggle": "on",
-                "data_integrity": {
-                    "raw": "yes",
-                    "simplification": "no"
-                }
-            },
-             "interval": "60",
-             "Ecryption": "yes"
+    "cust_name": "Pop Team Epic",
+    "dev":{
+        "dev_1":{
+            "dev_id": "YJSNPI114",
+            "province": "Shandong",
+            "city": "Utopia"
         },
-        "owner": "Pipimi",
-        "parameter_01": {
-            "alarm": {
-                "toggle": "on",
-                "customization": "no",
-                "type": "abnormal",
-                "range": ""
-            },
-            "visualization": {
-                "toggle": "on",
-                "type": "line-chart"
-            },
-            "diagnosis": {
-                "toggle": "off"
-            }
+        "dev_2":{
+            "dev_id": "YJSNPI514",
+            "province": "Jessie",
+            "city": "Lucy"
         }
     }
 }

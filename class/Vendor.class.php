@@ -74,23 +74,23 @@ class Vendor extends Platform
      *
      * Suppose the customer is already in database
      *
-        {
-            "cust_name":"Pop Team Epic",
-            "orders":{
-                "item_1":{
-                    "dev_id":"YJSP114",
-                    "item":"param-middle",
-                    "param":"rev",
-                    "quantity":"2"
-                },
-                "item_2":{
-                    "dev_id":"YJSP514",
-                    "item":"param-high",
-                    "param":"voltage-AB",
-                    "quantity":"3"
-                }
-            }
-        }
+     *   {
+     *       "cust_name":"Pop Team Epic",
+     *       "orders":{
+     *           "item_1":{
+     *               "dev_id":"YJSP114",
+     *               "item":"param-middle",
+     *               "param":"rev",
+     *               "quantity":"2"
+     *           },
+     *           "item_2":{
+     *               "dev_id":"YJSP514",
+     *               "item":"param-high",
+     *               "param":"voltage-AB",
+     *               "quantity":"3"
+     *           }
+     *       }
+     *   }
      *
      */
     public function addOrder($json)
@@ -140,14 +140,14 @@ class Vendor extends Platform
     /**
      * @param string $json
      *
-        {
-            "customer": {
-                "cust_name": "Pop Team Epic",
-                "cust_contact": "Pipimi",
-                "cust_tel": "114-514-893",
-                "mail": "anime@kuso.com"
-            }
-        }
+     *   {
+     *       "customer": {
+     *           "cust_name": "Pop Team Epic",
+     *           "cust_contact": "Pipimi",
+     *           "cust_tel": "114-514-893",
+     *           "mail": "anime@kuso.com"
+     *       }
+     *   }
      *
      *
      */
@@ -161,21 +161,21 @@ class Vendor extends Platform
     /**
      * @param string $json
      *
-        {
-            "cust_name": "Pop Team Epic",
-            "dev":{
-                "dev_1":{
-                    "dev_id": "YJSP114",
-                    "province": "Rust",
-                    "city": "Utopia"
-                },
-                "dev_2":{
-                    "dev_id": "YJSP514",
-                    "province": "Jessie",
-                    "city": "Lucy"
-                }
-            }
-        }
+     *   {
+     *       "cust_name": "Pop Team Epic",
+     *       "dev":{
+     *           "dev_1":{
+     *               "dev_id": "YJSP114",
+     *               "province": "Rust",
+     *               "city": "Utopia"
+     *           },
+     *           "dev_2":{
+     *               "dev_id": "YJSP514",
+     *               "province": "Jessie",
+     *               "city": "Lucy"
+     *           }
+     *       }
+     *   }
      */
     public function addDevice($json)
     {

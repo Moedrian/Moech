@@ -25,12 +25,6 @@ abstract class Platform
      * @param $json
      *
      */
-    abstract public function addCustomerDB($json);
-
-    /**
-     * @param $json
-     *
-     */
     abstract public function addProduct($json);
 
 }

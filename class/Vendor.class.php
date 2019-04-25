@@ -8,6 +8,8 @@ require 'RDB.class.php';
 
 use Conf;
 use Data\RDB\RDB;
+
+use foo\bar;
 use \Platform;
 use PDO;
 
@@ -93,7 +95,6 @@ class Vendor extends Platform
      */
     public function addOrder($json)
     {
-        // TODO: Implement addOrder() method.
 
         $arr = json_decode($json, true);
 
@@ -116,7 +117,7 @@ class Vendor extends Platform
 
         foreach ($arr['orders'] as $pk => $pv) {
             foreach ($arr['orders'][$pk] as $ck => $cv) {
-                $val .= ('"'. $cv . '"' . ",");
+                $val .= ('"'. $cv . '",');
                 if ($ck == 'item')
                     $price = $this->getProductPrice($cv);
             }
@@ -128,13 +129,16 @@ class Vendor extends Platform
         $query = "insert into order_items(order_num, dev_id, item, param, quantity, price) VALUES";
         $query = $query . $vals;
         $query = substr($query . $vals, 0, -1);
-        $conn->exec($query);
+        $stmt = $conn->prepare($query);
+        $stmt->execute();
 
         $conn->commit();
+
+        $this->initCustomerDevice($cust_id);
     }
 
     /**
-     * @param $json
+     * @param string $json
      *
         {
             "customer": {
@@ -149,18 +153,106 @@ class Vendor extends Platform
      */
     public function addCustomer($json)
     {
-        // TODO: Implement addCustomer() method.
         $this->vendorSimpleAdd('customers', $json);
+        $arr = json_decode($json, true);
+        $this->initCustomerDB($arr['customer']['cust_name']);
     }
 
+    /**
+     * @param string $json
+     *
+        {
+            "cust_name": "Pop Team Epic",
+            "dev":{
+                "dev_1":{
+                    "dev_id": "YJSP114",
+                    "province": "Rust",
+                    "city": "Utopia"
+                },
+                "dev_2":{
+                    "dev_id": "YJSP514",
+                    "province": "Jessie",
+                    "city": "Lucy"
+                }
+            }
+        }
+     */
     public function addDevice($json)
     {
-        // TODO: Implement addDevice() method.
+        $arr = json_decode($json, true);
+
+        $cust_id = $this->getCustID($arr['cust_name']);
+
+        $val = "";
+        $vals = "";
+
+        // Create multi-insert query here
+        foreach ($arr['dev'] as $pk => $pv) {
+            foreach ($arr['dev'][$pk] as $ck => $cv) {
+                $val .= ('"' . $cv . '",');
+            }
+            $val = '(' . $val . $cust_id . ',"' . $arr['cust_name'] . '")';
+            $vals .= $val . ",";
+            $val = "";
+        }
+
+        $query = "insert into devices(dev_id, province, city, cust_id, cust_name) VALUES";
+        $query = substr($query . $vals, 0,-1);
+
+        $db = new RDB();
+        $conn = $db->dataLink(Conf::RDB_VENDOR_DB);
+
+        $conn->beginTransaction();
+        $stmt = $conn->prepare($query);
+        $stmt->execute();
+        $conn->commit();
     }
 
-    public function addCustomerDB($json)
+    /**
+     * @param string $cust_name
+     */
+    private function initCustomerDB($cust_name)
     {
-        // TODO: Implement addCustomerDB() method.
+        $db = new RDB();
+        $conn = $db->dataLink(Conf::RDB_VENDOR_DB);
+
+        $cust_id = $this->getCustID($cust_name);
+
+        $conn->beginTransaction();
+
+        $query = "create database if not exists 'moni_" . $cust_id . " character set utf8mb4 collate utf8mb4_unicode_ci";
+        $conn->prepare($query)->execute();
+
+        $conn->commit();
+    }
+
+    /**
+     * @param string $cust_id
+     */
+    private function initCustomerDevice($cust_id)
+    {
+        $db = new RDB();
+        $conn = $db->dataLink('moni_' . $cust_id);
+
+        $conn->beginTransaction();
+
+        $query = "select dev_id from devices where cust_id='" . $cust_id . "'";
+        $dev = $conn->query($query)->fetchAll(PDO::FETCH_ASSOC);
+
+        for ($i = 0; $i < count($dev); $i++) {
+            $query = "select dev_id, param from order_items where dev_id='" . $dev[$i] . "'";
+            $params = $conn->query($query)->fetchAll(PDO::FETCH_KEY_PAIR);
+            foreach ($params as $key => $value) {
+                $crt_query[] = "create table if not exists " .$key."_".$value. "(crt_time datetime(3) not null primary key, val float(6,2) not null) engine=MyISAM";
+            }
+        }
+
+        for ($i = 0; $i < count($crt_query); $i++) {
+            $conn->prepare($crt_query[$i])->execute();
+        }
+
+        $conn->commit();
+
     }
 
     /**
@@ -169,7 +261,6 @@ class Vendor extends Platform
      */
     public function addProduct($json)
     {
-        // TODO: Implement addProduct() method.
         $this->vendorSimpleAdd('products', $json);
     }
 }

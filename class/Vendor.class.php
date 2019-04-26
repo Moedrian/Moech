@@ -9,7 +9,6 @@ require 'RDB.class.php';
 use Conf;
 use Data\RDB\RDB;
 
-use foo\bar;
 use \Platform;
 use PDO;
 

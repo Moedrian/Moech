@@ -1,0 +1,36 @@
+{
+    "dev_1": {
+        "dev_id": "YJSP114",
+        "params": {
+            "temp": {
+                "freq": 5,
+                "min": 0,
+                "max": 95
+            },
+            "rev": {
+                "freq": 60,
+                "min": 1300,
+                "max": 1550
+            },
+            "voltage_AB": {
+                "freq": 300,
+                "min": 0,
+                "max": 500,
+                "duration": 3
+            }
+        }
+    },
+    "dev_2": {
+        "dev_id": "YJSP514",
+        "params": {
+            "temp": {
+                "freq": 5,
+                "min": 0,
+                "max": 95
+            },
+            "vibration": {
+                "freq": 1000
+            }
+        }
+    }
+}

@@ -52,14 +52,21 @@ CREATE TABLE params_ref (
     seq_id int NOT NULL AUTO_INCREMENT,
     dev_id char(20) NOT NULL,
     param char(30) NOT NULL,
-    min float(6,2) NOT NULL,
-    max float(6,2) NOT NULL,
+    freq int NOT NULL,
+    min float(6,2),
+    max float(6,2),
     duration float,
     extra text,
     PRIMARY KEY(seq_id)
 ) ENGINE=InnoDB;
 
-INSERT INTO `products` (`item`, `charging_method`, `price`, `description`) VALUES
+INSERT INTO customers (cust_id, cust_name, cust_contact, cust_tel, cust_mail) VALUES
+    (10000, 'Ariadust', 'Tori', '12345678900', 'musashi@mail.com');
+
+INSERT INTO orders (order_num, order_date, cust_id) VALUES
+    (20000, '2019-04-01', 10000);
+
+INSERT INTO products (item, charging_method, price, description) VALUES
     ('diagnosis', 'variable', 500.00, 'enable diagnosis data feedback and graph'),
     ('graph-simple', 'subscription', 50.00, 'enable graph page but need extra charge'),
     ('graph-extra', 'variable', 150.00, 'a customized service of graph'),

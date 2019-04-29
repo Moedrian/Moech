@@ -1,15 +1,15 @@
 <?php
 
 
-namespace Vendor;
+namespace Moech\Vendor;
 
 require 'Platform.abstract.php';
 require 'RDB.class.php';
 
 use Conf;
-use Data\RDB\RDB;
+use Moech\Data\RDB;
 
-use \Platform;
+use Moech\AbstractClass\Platform;
 use PDO;
 
 class Vendor extends Platform

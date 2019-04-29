@@ -1,10 +1,14 @@
 <?php
 
-namespace Customer\User;
+namespace Moech\User;
 
-use DataPorter\SQL\SQLPorter;
+require 'RDB.class.php';
+require 'DevicePurchaser.abstract.php';
 
-class User
+use Moech\Data\RDB;
+use Moech\AbstractClass\DevicePurchaser;
+
+class User extends DevicePurchaser
 {
     private $username;
     private $alias;

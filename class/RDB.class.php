@@ -1,9 +1,10 @@
 <?php
 
-namespace Data\RDB;
+namespace Moech\Data;
 
 require '../vendor/autoload.php';
 require  '../config/Conf.php';
+
 use Conf;
 
 use PDO;

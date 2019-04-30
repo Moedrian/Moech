@@ -5,27 +5,33 @@ namespace Moech\AbstractClass;
 abstract class Platform
 {
     /**
-     * @param $json
+     * @param string $json
      *
      */
-    abstract public function addOrder($json);
+    abstract public function addOrder(string $json);
 
     /**
-     * @param $json
+     * @param string $json
      *
      */
-    abstract public function addCustomer($json);
+    abstract public function addCustomerSignUp(string $json);
 
     /**
-     * @param $json
+     * @param string $json
      *
      */
-    abstract public function addDevice($json);
+    abstract public function addCustomerInfo(string $json);
 
     /**
-     * @param $json
+     * @param string $json
      *
      */
-    abstract public function addProduct($json);
+    abstract public function addDevice(string $json);
+
+    /**
+     * @param string $json
+     *
+     */
+    abstract public function addProduct(string $json);
 
 }

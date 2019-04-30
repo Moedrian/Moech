@@ -7,18 +7,20 @@ require 'Platform.abstract.php';
 require 'RDB.class.php';
 
 use Conf;
-use Moech\Data\RDB;
 
 use Moech\AbstractClass\Platform;
+use Moech\Data\RDB;
+
 use PDO;
 
 class Vendor extends Platform
 {
+
     /**
-     * @param $json
+     * @param string $json
      *
      */
-    public function addProduct($json)
+    public function addProduct(string $json)
     {
         $this->vendorSimpleAdd('products', $json);
     }
@@ -27,45 +29,149 @@ class Vendor extends Platform
     /**
      * @param string $json
      *
-     *   {
-     *       "customer": {
-     *           "cust_name": "Pop Team Epic",
-     *           "cust_contact": "Pipimi",
-     *           "cust_tel": "114-514-893",
-     *           "mail": "anime@kuso.com"
-     *       }
-     *   }
+     * @uses RDB::dataLink() to link to Vendor database
      *
+     * The input is
+     * @example ../test/json_input/customer_reg.json
+     *
+     *
+     * This shall be the first step of the customer initialization
+     * Next, {@see Vendor::addCustomerInfo()}
      *
      */
-    public function addCustomer($json)
+    public function addCustomerSignUp(string $json)
     {
-        $this->vendorSimpleAdd('customers', $json);
-        $arr = json_decode($json, true);
-        $this->initCustomerDB($arr['customer']['cust_name']);
+        $db = new RDB();
+        $conn = $db->dataLink(Conf::RDB_VENDOR_DB);
+
+        $reg_info_array = json_decode($json, true);
+
+        // @todo Encryption of password
+
+        $conn->beginTransaction();
+        // Insert registration to table `customer_reg`
+        $query = "insert into customer_reg(username, user_mail, password, cust_name) VALUES (?, ?, ?, ?)";
+        $conn->prepare($query)->execute(array_values($reg_info_array["registration"]));
+
+        // Next, insert customer name into `customer_info`
+        $query = "insert into customer_info(cust_id, cust_name) values (null, ?)";
+        $conn->prepare($query)->execute([$reg_info_array["registration"]["cust_name"]]);
+
+        $conn->commit();
     }
 
 
     /**
      * @param string $json
      *
-     *   {
-     *       "cust_name": "Pop Team Epic",
-     *       "dev":{
-     *           "dev_1":{
-     *               "dev_id": "YJSP114",
-     *               "province": "Rust",
-     *               "city": "Utopia"
-     *           },
-     *           "dev_2":{
-     *               "dev_id": "YJSP514",
-     *               "province": "Jessie",
-     *               "city": "Lucy"
-     *           }
-     *       }
-     *   }
+     * @uses RDB::dataLink() to link to Vendor database
+     *
+     * Check the input in
+     * @example ../test/json_input/customer_info.json
+     *
+     *
+     * After
+     * @see Vendor::addCustomerSignUp()
+     * This method is for adding detailed information of a customer
+     *
+     * Once the information is completed,
+     * @uses Vendor::initCustomerDB() to create customer database
+     *
+     * Next,
+     * @see Vendor::addDevice()
+     *
      */
-    public function addDevice($json)
+    public function addCustomerInfo(string $json)
+    {
+        $db = new RDB();
+        $conn = $db->dataLink(Conf::RDB_VENDOR_DB);
+
+        $info_array = json_decode($json, true);
+
+        $cust_name = $info_array["customer"]["cust_name"];
+        unset($info_array["customer"]["cust_name"]);
+
+        $query = "update customer_info set cust_contact=?, cust_tel=?, cust_mail=? where cust_name='" . $cust_name . "'";
+
+        $conn->prepare($query)->execute([array_values($info_array["customer"])]);
+
+        // Initialize customer database
+        $this->initCustomerDB($cust_name);
+    }
+
+
+    /**
+     * @param string $cust_name
+     *
+     * @uses RDB::dataLink() to link to Vendor database
+     *
+     * Create customer database and create essential tables for management
+     *
+     */
+    private function initCustomerDB($cust_name)
+    {
+        $db = new RDB();
+        $conn = $db->dataLink(Conf::RDB_VENDOR_DB);
+
+        $cust_id = $this->getCustID($cust_name);
+
+        $conn->beginTransaction();
+
+        // Create customer database
+        $query = "create database if not exists moni_" . $cust_id . " character set utf8mb4 collate utf8mb4_unicode_ci";
+
+        $conn->prepare($query)->execute();
+
+        // Switch to customer database to create some essential tables
+        $conn->prepare("use moni_" . $cust_id)->execute();
+
+        // Create table `users` for user management
+        $query = "create table users(
+            username char(30) not null primary key,
+            alias char(30),
+            password varchar(60) not null,
+            user_tel char(15) not null,
+            user_mail char(50),
+            user_group char(40) not null,
+            user_role char(20) not null
+        ) engine=InnoDB";
+
+        $conn->prepare($query)->execute();
+
+        // Create table `devices` for device management
+        $query = "create table devices(
+            dev_id char(20) not null primary key,
+            user_group char(40) not null
+        ) engine=InnoDB";
+
+        $conn->prepare($query)->execute();
+
+        // Create table `params` to check params that are being monitored
+        $query = "create table params_ref like ". Conf::RDB_VENDOR_DB . ".params_ref";
+
+        $conn->prepare($query)->execute();
+
+        $conn->commit();
+    }
+
+
+    /**
+     * @param string $json
+     *
+     * @uses RDB::dataLink()
+     *
+     * The input is
+     * @example ../test/json_input/device.json
+     *
+     * After
+     * @see Vendor::addCustomerInfo()
+     *
+     * add device for a customer signed up before
+     *
+     * Next,
+     * @see Vendor::initCustomerDevice()
+     */
+    public function addDevice(string $json)
     {
         $arr = json_decode($json, true);
 
@@ -100,25 +206,6 @@ class Vendor extends Platform
     /**
      * @param string $json
      *
-     * Suppose the customer is already in database
-     *
-     *   {
-     *       "cust_name":"Pop Team Epic",
-     *       "orders":{
-     *           "item_1":{
-     *               "dev_id":"YJSP114",
-     *               "item":"param-middle",
-     *               "param":"rev",
-     *               "quantity":"2"
-     *           },
-     *           "item_2":{
-     *               "dev_id":"YJSP514",
-     *               "item":"param-high",
-     *               "param":"voltage_AB",
-     *               "quantity":"3"
-     *           }
-     *       }
-     *   }
      *
      */
     public function addOrder($json)
@@ -165,24 +252,6 @@ class Vendor extends Platform
         $this->initCustomerDevice($cust_id);
     }
 
-
-    /**
-     * @param string $cust_name
-     */
-    private function initCustomerDB($cust_name)
-    {
-        $db = new RDB();
-        $conn = $db->dataLink(Conf::RDB_VENDOR_DB);
-
-        $cust_id = $this->getCustID($cust_name);
-
-        $conn->beginTransaction();
-
-        $query = "create database if not exists 'moni_" . $cust_id . " character set utf8mb4 collate utf8mb4_unicode_ci";
-        $conn->prepare($query)->execute();
-
-        $conn->commit();
-    }
 
 
     /**
@@ -235,15 +304,16 @@ class Vendor extends Platform
         $conn->commit();
     }
 
+
     /**
      * @param string $cust_name
      * @return mixed
      */
-    private function getCustID($cust_name)
+    private function getCustID(string $cust_name)
     {
         $db = new RDB();
         $conn = $db->dataLink(Conf::RDB_VENDOR_DB);
-        $query = "select cust_id from customers where cust_name = ?";
+        $query = "select cust_id from customer_info where cust_name = ?";
         $stmt = $conn->prepare($query);
         $stmt->execute([$cust_name]);
 
@@ -251,6 +321,7 @@ class Vendor extends Platform
 
         return $row->cust_id;
     }
+
 
     /**
      * @param string $item

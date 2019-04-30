@@ -5,18 +5,23 @@
             "temp": {
                 "freq": 5,
                 "min": 0,
-                "max": 95
+                "max": 95,
+                "duration": "",
+                "extra": ""
             },
             "rev": {
                 "freq": 60,
                 "min": 1300,
-                "max": 1550
+                "max": 1550,
+                "duration": "",
+                "extra": ""
             },
             "voltage_AB": {
                 "freq": 300,
                 "min": 0,
                 "max": 500,
-                "duration": 3
+                "duration": 3,
+                "extra": ""
             }
         }
     },
@@ -26,10 +31,16 @@
             "temp": {
                 "freq": 5,
                 "min": 0,
-                "max": 95
+                "max": 95,
+                "duration": "",
+                "extra": ""
             },
             "vibration": {
-                "freq": 1000
+                "freq": 1000,
+                "min": "",
+                "max": "",
+                "duration": "",
+                "extra": ""
             }
         }
     }

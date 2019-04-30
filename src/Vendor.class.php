@@ -167,41 +167,66 @@ class Vendor extends Platform
      * @see Vendor::addCustomerInfo()
      *
      * add device for a customer signed up before
+     * both in vendor database and customer database
      *
      * Next,
-     * @see Vendor::initCustomerDevice()
+     * @see Vendor::addDeviceParams()
      */
     public function addDevice(string $json)
     {
-        $arr = json_decode($json, true);
+        $dev_arr = json_decode($json, true);
 
-        $cust_id = $this->getCustID($arr['cust_name']);
-
-        $val = "";
-        $vals = "";
-
-        // Create multi-insert query here
-        foreach ($arr['dev'] as $pk => $pv) {
-            foreach ($arr['dev'][$pk] as $ck => $cv) {
-                $val .= ('"' . $cv . '",');
-            }
-            $val = '(' . $val . $cust_id . ',"' . $arr['cust_name'] . '")';
-            $vals .= $val . ",";
-            $val = "";
-        }
-
-        $query = "insert into devices(dev_id, province, city, cust_id, cust_name) VALUES";
-        $query = substr($query . $vals, 0,-1);
+        $cust_id = $this->getCustID($dev_arr['cust_name']);
 
         $db = new RDB();
         $conn = $db->dataLink(Conf::RDB_VENDOR_DB);
 
         $conn->beginTransaction();
-        $stmt = $conn->prepare($query);
-        $stmt->execute();
+
+        foreach ($dev_arr["dev"] as $pk => $pv) {
+            $query = "insert into devices(dev_id, cust_id, cust_name, province, city) VALUES(?, ?, ?, ?, ?)";
+            $stmt = $conn->prepare($query);
+            $stmt->execute([$pv["dev_id"], $cust_id, $dev_arr["cust_name"], $pv["province"], $pv["city"]]);
+        }
+
         $conn->commit();
     }
 
+
+    public function addDeviceParams(string $json)
+    {
+
+    }
+
+    /**
+     * @param string $cust_id
+     */
+    private function initCustomerDevice($cust_id)
+    {
+        $db = new RDB();
+        $conn = $db->dataLink('moni_' . $cust_id);
+
+        $conn->beginTransaction();
+
+        $query = "select dev_id from " .Conf::RDB_VENDOR_DB. ".devices where cust_id='" . $cust_id . "'";
+        $dev = $conn->query($query)->fetchAll(PDO::FETCH_COLUMN);
+
+        for ($i = 0; $i < count($dev); $i++) {
+            $query = "select dev_id, param from " .Conf::RDB_VENDOR_DB. ".order_items where dev_id='" . $dev[$i] . "'" . "and table_status=0";
+            $params = $conn->query($query)->fetchAll(PDO::FETCH_KEY_PAIR);
+            foreach ($params as $key => $value) {
+                $crt_query[] = "create table if not exists " .$key."_".$value. "(crt_time datetime(3) not null primary key, val float(6,2) not null) engine=MyISAM";
+                $crt_query[] = "update " . Conf::RDB_VENDOR_DB . ".order_items set table_status=1 where dev_id='".$key."' and param='". $value. "'";
+            }
+        }
+
+        for ($i = 0; $i < count($crt_query); $i++) {
+            $conn->prepare($crt_query[$i])->execute();
+        }
+
+        $conn->commit();
+
+    }
 
     /**
      * @param string $json
@@ -253,36 +278,6 @@ class Vendor extends Platform
     }
 
 
-
-    /**
-     * @param string $cust_id
-     */
-    private function initCustomerDevice($cust_id)
-    {
-        $db = new RDB();
-        $conn = $db->dataLink('moni_' . $cust_id);
-
-        $conn->beginTransaction();
-
-        $query = "select dev_id from " .Conf::RDB_VENDOR_DB. ".devices where cust_id='" . $cust_id . "'";
-        $dev = $conn->query($query)->fetchAll(PDO::FETCH_COLUMN);
-
-        for ($i = 0; $i < count($dev); $i++) {
-            $query = "select dev_id, param from " .Conf::RDB_VENDOR_DB. ".order_items where dev_id='" . $dev[$i] . "'" . "and table_status=0";
-            $params = $conn->query($query)->fetchAll(PDO::FETCH_KEY_PAIR);
-            foreach ($params as $key => $value) {
-                $crt_query[] = "create table if not exists " .$key."_".$value. "(crt_time datetime(3) not null primary key, val float(6,2) not null) engine=MyISAM";
-                $crt_query[] = "update " . Conf::RDB_VENDOR_DB . ".order_items set table_status=1 where dev_id='".$key."' and param='". $value. "'";
-            }
-        }
-
-        for ($i = 0; $i < count($crt_query); $i++) {
-            $conn->prepare($crt_query[$i])->execute();
-        }
-
-        $conn->commit();
-
-    }
 
 
     /**

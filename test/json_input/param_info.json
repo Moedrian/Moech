@@ -6,21 +6,21 @@
                 "freq": 5,
                 "min": 0,
                 "max": 95,
-                "duration": "",
+                "abnormal_duration": "",
                 "extra": ""
             },
             "rev": {
                 "freq": 60,
                 "min": 1300,
                 "max": 1550,
-                "duration": "",
+                "abnormal_duration": "",
                 "extra": ""
             },
             "voltage_AB": {
                 "freq": 300,
                 "min": 0,
                 "max": 500,
-                "duration": 3,
+                "abnormal_duration": 3,
                 "extra": ""
             }
         }
@@ -32,14 +32,14 @@
                 "freq": 5,
                 "min": 0,
                 "max": 95,
-                "duration": "",
+                "abnormal_duration": "",
                 "extra": ""
             },
             "vibration": {
                 "freq": 1000,
                 "min": "",
                 "max": "",
-                "duration": "",
+                "abnormal_duration": "",
                 "extra": ""
             }
         }

@@ -40,12 +40,22 @@ CREATE TABLE order_items (
     PRIMARY KEY(seq_id)
 ) ENGINE=InnoDB;
 
-CREATE TABLE products (
-    item char(30) NOT NULL,
-    charging_method char(20) NOT NULL,
+CREATE TABLE product_param (
+    category char(20) NOT NULL,
+    freq_min int,
+    freq_max int,
+    charging char(30) NOT NULL,
     price float(6,2) NOT NULL,
-    description text NOT NULL,
-    PRIMARY KEY(item)
+    description text,
+    PRIMARY KEY(category)
+) ENGINE=InnoDB;
+
+CREATE TABLE product_addition (
+    category char(20) NOT NULL,
+    charging char(30) NOT NULL,
+    price float(6,2) NOT NULL,
+    description text,
+    PRIMARY KEY(category)
 ) ENGINE=InnoDB;
 
 CREATE TABLE params_ref (
@@ -65,17 +75,5 @@ INSERT INTO customers (cust_id, cust_name, cust_contact, cust_tel, cust_mail) VA
 
 INSERT INTO orders (order_num, order_date, cust_id) VALUES
     (20000, '2019-04-01', 10000);
-
-INSERT INTO products (item, charging_method, price, description) VALUES
-    ('diagnosis', 'variable', 500.00, 'enable diagnosis data feedback and graph'),
-    ('graph-simple', 'subscription', 50.00, 'enable graph page but need extra charge'),
-    ('graph-extra', 'variable', 150.00, 'a customized service of graph'),
-    ('alarm-simple', 'subscription', 100.00, 'simple abnormal alarm for a param'),
-    ('alarm-duration', 'subscription', 150.00, 'simple abnormal plus a duration time value'),
-    ('alarm-extra', 'variable', 500.00, 'a customized service of alarm'),
-    ('param-extra', 'subscription', 800.00, 'need technique evaluation'),
-    ('param-high', 'subscription', 400.00, 'for volume from 151 to 400 per second'),
-    ('param-middle', 'subscription', 200.00, 'for volume from 51 to 150 per second'),
-    ('param-small', 'subscription', 100.00, 'for volume from 1 to 50 per second');
 
 COMMIT;

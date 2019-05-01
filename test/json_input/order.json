@@ -3,31 +3,30 @@
     "orders": {
         "item_1":{
             "dev_id": "YJSP114",
-            "item": "param-middle",
+            "item": "param",
             "param": "rev",
             "quantity": "2"
         },
         "item_2":{
             "dev_id": "YJSP114",
-            "item": "param-small",
+            "item": "param",
             "param": "temp",
             "quantity": "2"
         },
         "item_3":{
             "dev_id": "YJSP114",
-            "item": "param-high",
+            "item": "param",
             "param": "voltage_AB",
             "quantity": "2"
         },
         "item_4": {
             "dev_id": "YJSP514",
-            "item": "param-extra",
+            "item": "param",
             "param": "vibration",
             "quantity": "3"
         },
         "item_5": {
             "dev_id": "YJSP514",
-            "item": "param-small",
             "param": "temp",
             "quantity": "3"
         }

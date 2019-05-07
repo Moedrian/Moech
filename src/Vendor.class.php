@@ -76,6 +76,7 @@ class Vendor extends Platform
      *
      * Once the information is completed,
      * @uses Vendor::initCustomerDB() to create customer database
+     * @todo The Vendor::initCustomerDB shall belong to a Deployment procedure
      *
      * Next,
      * @see Vendor::addDevice()
@@ -222,7 +223,7 @@ class Vendor extends Platform
 
         foreach ($param_info as $pk => $pv) {
             foreach ($pv["params"] as $ck => $cv) {
-                $query = "insert into params_ref(seq_id, dev_id, param, freq, min, max, duration, extra) VALUES(null,?,?,?,?,?,?,?)";
+                $query = "insert into params_ref(seq_id, dev_id, param, freq, min, max, abnormal_duration, extra) VALUES(null,?,?,?,?,?,?,?)";
                 $stmt = $conn->prepare($query);
                 $stmt->execute([$pv["dev_id"], $ck, $cv["freq"], $cv["min"], $cv["max"], $cv["duration"], $cv["extra"]]);
             }
@@ -255,9 +256,9 @@ class Vendor extends Platform
         $db = new RDB();
         $conn = $db->dataLink(Conf::RDB_VENDOR_DB);
 
-        $insert_orders_record = "insert into orders values(null, ?, ?)";
-
         $conn->beginTransaction();
+
+        $insert_orders_record = "insert into orders values(null, ?, ?)";
 
         $stmt = $conn->prepare($insert_orders_record);
         $stmt->execute([$today, $cust_id]);

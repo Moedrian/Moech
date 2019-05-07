@@ -84,7 +84,7 @@ alias | char(30) | yes | null | |
 password | varchar(60) | no | none | encrypted |
 user_tel | char(15) | no | none | |
 user_mail | char(50) | yes | null | |
-group | char(40) | no | none | | primary key
+user_group | char(40) | no | none | | primary key
 role | char(20) | no | none | |
 
 #### 2. devices
@@ -92,7 +92,7 @@ role | char(20) | no | none | |
 column | type | null | default | extras | comments
 :--- | :--- | :--- | :--- | :--- | :---
 dev_id | char(20) | no | none | | primary key
-group | char(40) | no | none | |
+user_group | char(40) | no | none | |
 
 #### 3. alert_event
 

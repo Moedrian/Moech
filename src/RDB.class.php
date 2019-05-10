@@ -2,19 +2,14 @@
 
 namespace Moech\Data;
 
-require '../vendor/autoload.php';
-require  '../config/Conf.php';
-
-use Conf;
-
 use PDO;
 
 class RDB
 {
-    private $db_type = Conf::RDB_NAME;
-    private $db_host = Conf::RDB_HOST;
-    private $db_username = Conf::RDB_USER;
-    private $db_password = Conf::RDB_PASSWD;
+    private $db_type;
+    private $db_host;
+    private $db_username;
+    private $db_password;
 
     public function __set($name, $value)
     {
@@ -27,12 +22,21 @@ class RDB
     }
 
     /**
-     * @param $db_name
-     * @return PDO
+     * @param string $db_name the name of database to create a dsn
+     * @param string $file the path to database configuration file
+     *
+     * @return object PDO
      */
-    public function dataLink($db_name)
+    public function dataLink($db_name, $file)
     {
+        $ini = parse_ini_file($file);
+        $this->db_type = $ini['RDB_NAME'];
+        $this->db_host = $ini['HOST'];
+        $this->db_username = $ini['RDB_USER'];
+        $this->db_password = $ini['RDB_PASSWD'];
+
         $dsn = $this->db_type . ":host=" . $this->db_host . ";dbname=" . $db_name;
+        echo $dsn;
         $conn = new PDO($dsn, $this->db_username, $this->db_password);
         return $conn;
     }

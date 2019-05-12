@@ -3,49 +3,18 @@
 
 namespace Moech\Vendor;
 
-// Abstract class to be extended
 require 'Platform.abstract.php';
-
-// Classes to be used
 require 'RDB.class.php';
+
+use Conf;
 
 use Moech\AbstractClass\Platform;
 use Moech\Data\RDB;
 
 use PDO;
 
-
 class Vendor extends Platform
 {
-
-    protected $db_name;
-    protected $config;
-
-    /**
-     * Vendor constructor.
-     *
-     */
-    public function __construct()
-    {
-        $this->config = __DIR__ . '/../config/vendor.ini';
-        $ini = parse_ini_file($this->config);
-        $this->db_name = $ini['VENDOR_DB'];
-    }
-
-    public function __set($name, $value)
-    {
-        $this->$name = $value;
-    }
-
-    /**
-     * @param $name
-     */
-    public function __get($name)
-    {
-        if (isset($this->$name)) {
-            echo $this->$name;
-        }
-    }
 
     /**
      * @param string $json
@@ -73,7 +42,7 @@ class Vendor extends Platform
     public function addCustomerSignUp(string $json)
     {
         $db = new RDB();
-        $conn = $db->dataLink($this->db_name, $this->config);
+        $conn = $db->dataLink(Conf::RDB_VENDOR_DB);
 
         $reg_info_array = json_decode($json, true);
 
@@ -116,7 +85,7 @@ class Vendor extends Platform
     public function addCustomerInfo(string $json)
     {
         $db = new RDB();
-        $conn = $db->dataLink($this->db_name, $this->config);
+        $conn = $db->dataLink(Conf::RDB_VENDOR_DB);
 
         $info_array = json_decode($json, true);
 
@@ -128,7 +97,7 @@ class Vendor extends Platform
         $conn->prepare($query)->execute([array_values($info_array["customer"])]);
 
         // Initialize customer database
-        // $this->initCustomerDB($cust_name);
+        $this->initCustomerDB($cust_name);
     }
 
 
@@ -143,7 +112,7 @@ class Vendor extends Platform
     private function initCustomerDB($cust_name)
     {
         $db = new RDB();
-        $conn = $db->dataLink($this->db_name, $this->config);
+        $conn = $db->dataLink(Conf::RDB_VENDOR_DB);
 
         $cust_id = $this->getCustID($cust_name);
 
@@ -179,7 +148,7 @@ class Vendor extends Platform
         $conn->prepare($query)->execute();
 
         // Create table `params` to check params that are being monitored
-        $query = "create table params_ref like ". $this->db_name . ".params_ref";
+        $query = "create table params_ref like ". Conf::RDB_VENDOR_DB . ".params_ref";
 
         $conn->prepare($query)->execute();
 
@@ -211,9 +180,7 @@ class Vendor extends Platform
         $cust_id = $this->getCustID($dev_arr['cust_name']);
 
         $db = new RDB();
-        if (isset($this->db_name) && isset($this->config)) {
-            $conn = $db->dataLink($this->db_name, $this->config);
-        }
+        $conn = $db->dataLink(Conf::RDB_VENDOR_DB);
 
         $conn->beginTransaction();
 
@@ -248,7 +215,7 @@ class Vendor extends Platform
     public function addDeviceParamInfo(string $json)
     {
         $db = new RDB();
-        $conn = $db->dataLink($this->db_name, $this->config);
+        $conn = $db->dataLink(Conf::RDB_VENDOR_DB);
 
         $param_info = json_decode($json, true);
 
@@ -287,7 +254,7 @@ class Vendor extends Platform
         $cust_id = $this->getCustID($arr['cust_name']);
 
         $db = new RDB();
-        $conn = $db->dataLink($this->db_name, $this->config);
+        $conn = $db->dataLink(Conf::RDB_VENDOR_DB);
 
         $conn->beginTransaction();
 
@@ -332,15 +299,15 @@ class Vendor extends Platform
 
         $conn->beginTransaction();
 
-        $query = "select dev_id from " .$this->db_name. ".devices where cust_id='" . $cust_id . "'";
+        $query = "select dev_id from " .Conf::RDB_VENDOR_DB. ".devices where cust_id='" . $cust_id . "'";
         $dev = $conn->query($query)->fetchAll(PDO::FETCH_COLUMN);
 
         for ($i = 0; $i < count($dev); $i++) {
-            $query = "select dev_id, param from " .$this->db_name. ".order_items where dev_id='" . $dev[$i] . "'" . "and table_status=0";
+            $query = "select dev_id, param from " .Conf::RDB_VENDOR_DB. ".order_items where dev_id='" . $dev[$i] . "'" . "and table_status=0";
             $params = $conn->query($query)->fetchAll(PDO::FETCH_KEY_PAIR);
             foreach ($params as $key => $value) {
                 $crt_query[] = "create table if not exists " .$key."_".$value. "(crt_time datetime(3) not null primary key, val float(6,2) not null) engine=MyISAM";
-                $crt_query[] = "update " . $this->db_name . ".order_items set table_status=1 where dev_id='".$key."' and param='". $value. "'";
+                $crt_query[] = "update " . Conf::RDB_VENDOR_DB . ".order_items set table_status=1 where dev_id='".$key."' and param='". $value. "'";
             }
         }
 
@@ -364,7 +331,7 @@ class Vendor extends Platform
         $arr = json_decode($json, true);
 
         $db = new RDB();
-        $conn = $db->dataLink($this->db_name, $this->config);
+        $conn = $db->dataLink(Conf::RDB_VENDOR_DB);
 
         $conn->beginTransaction();
         $stmt = $conn->prepare(Conf::Vendor_DB[$table]);
@@ -380,7 +347,7 @@ class Vendor extends Platform
     private function getCustID(string $cust_name)
     {
         $db = new RDB();
-        $conn = $db->dataLink($this->db_name, $this->db_config);
+        $conn = $db->dataLink(Conf::RDB_VENDOR_DB);
         $query = "select cust_id from customer_info where cust_name = ?";
         $stmt = $conn->prepare($query);
         $stmt->execute([$cust_name]);
@@ -398,7 +365,7 @@ class Vendor extends Platform
     private function getProductPrice($item)
     {
         $db = new RDB();
-        $conn = $db->dataLink($this->db_name, $this->config);
+        $conn = $db->dataLink(Conf::RDB_VENDOR_DB);
         $query = "select price from products where item = ?";
         $stmt = $conn->prepare($query);
         $stmt->execute([$item]);

@@ -36,7 +36,6 @@ class RDB
         $this->db_password = $ini['RDB_PASSWD'];
 
         $dsn = $this->db_type . ":host=" . $this->db_host . ";dbname=" . $db_name;
-        echo $dsn;
         $conn = new PDO($dsn, $this->db_username, $this->db_password);
         return $conn;
     }

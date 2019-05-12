@@ -14,4 +14,5 @@ composer.lock
 test/basic/
 
 # ignore private config files
-config/
+config/vendor.ini
+config/customer.ini

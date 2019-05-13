@@ -1,0 +1,11 @@
+{
+    "type": "param",
+    "product": {
+        "category": "small",
+        "freq_min": "0",
+        "freq_max": "50",
+        "charging": "subscription/month",
+        "price": "300",
+        "description": "Hope you guess my name"
+    }
+}

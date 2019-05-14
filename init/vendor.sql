@@ -59,6 +59,7 @@ CREATE TABLE order_items (
     seq_id int NOT NULL,
     dev_id char(20) NOT NULL,
     order_num int NOT NULL,
+    category char(30) NOT NULL,
     item char(30) NOT NULL,
     param char(30) NOT NULL,
     quantity int NOT NULL,

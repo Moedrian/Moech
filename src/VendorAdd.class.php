@@ -4,7 +4,7 @@
 namespace Moech\Vendor;
 
 // Abstract class to be extended
-require 'PlatformAdd.abstract.php';
+require __dir__ . "/../Abstraction/PlatformAdd.abstract.php";
 
 // Classes to be used
 require 'RDB.class.php';

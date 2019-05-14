@@ -1,7 +1,7 @@
 {
-    "type": "param",
+    "category": "param",
     "product": {
-        "category": "small",
+        "item": "small",
         "freq_min": "0",
         "freq_max": "50",
         "charging": "subscription/month",

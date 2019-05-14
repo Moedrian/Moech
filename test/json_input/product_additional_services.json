@@ -1,7 +1,7 @@
 {
-    "type": "additional_services",
+    "category": "additional_services",
     "product" : {
-        "category": "alarm",
+        "item": "alarm",
         "changing": "subscription/month",
         "price": "200",
         "description": "Please to meet you"

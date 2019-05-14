@@ -4,7 +4,7 @@
 namespace Moech\Vendor;
 
 // Abstract class to be extended
-require 'Platform.abstract.php';
+require 'PlatformAdd.abstract.php';
 
 // Classes to be used
 require 'RDB.class.php';
@@ -78,10 +78,10 @@ class VendorAdd extends PlatformAdd
 
         $query = "";
         // Generate different queries according to "type" value
-        if ($info["type"] == "additional_services") {
-            $query = "insert into product_addition(category, charging, price, description) VALUES (?, ?, ?, ?)";
-        } elseif ($info["type"] == "param") {
-            $query = "insert into product_param(category, freq_min, freq_max, charging, price, description) VALUES (?, ?, ?, ?, ?, ?)";
+        if ($info["category"] == "additional_services") {
+            $query = "insert into product_addition(item, charging, price, description) VALUES (?, ?, ?, ?)";
+        } elseif ($info["category"] == "param") {
+            $query = "insert into product_param(item, freq_min, freq_max, charging, price, description) VALUES (?, ?, ?, ?, ?, ?)";
         }
 
         $conn->prepare($query)->execute(array_values($info["product"]));
@@ -95,7 +95,8 @@ class VendorAdd extends PlatformAdd
      * @example ../test/json_input/customer_reg.json
      *
      * This shall be the first step of the customer initialization
-     * Next, {@see VendorAdd::addCustomerInfo()}
+     * Next,
+     * @see VendorAdd::addCustomerInfo()
      *
      */
     public function addCustomerSignUp(string $json)
@@ -130,8 +131,6 @@ class VendorAdd extends PlatformAdd
      * This method is for adding detailed information of a customer
      *
      * Once the information is completed,
-     * @uses VendorAdd::initCustomerDB() to create customer database
-     * @todo The Vendor::initCustomerDB shall belong to a Deployment procedure
      *
      * Next,
      * @see VendorAdd::addDevice()
@@ -163,10 +162,9 @@ class VendorAdd extends PlatformAdd
      * @see Vendor::addCustomerInfo()
      *
      * add device for a customer signed up before
-     * both in vendor database and customer database
      *
      * Next,
-     * @see Vendor::addDeviceParams()
+     * @see Vendor::addDeviceParamInfo()
      */
     public function addDevice(string $json)
     {
@@ -229,23 +227,50 @@ class VendorAdd extends PlatformAdd
     /**
      * @param string $json
      *
-     * @uses RDB::dataLink()
-     *
      * After
      * @see Vendor::addDeviceParamInfo()
      *
      * @todo bind orders to params added before
      *
-     * Next, create param tables
+     * @todo what about the payment system
      */
-    public function addOrder($json)
+    public function addOrder(string $json)
     {
+        $orders = json_decode($json, true);
+        $cust_name = $orders["cust_name"];
+        $cust_id = $this->getCustID($cust_name);
+
+        date_default_timezone_set("Asia/Shanghai");
+        $order_date = date("Y-m-d");
+
+        $conn = $this->VDBHandler();
+
+        $conn->beginTransaction();
+
+        // First, add a record to `vendor.orders`
+        $order_query = "insert into orders(order_num, order_date, cust_id) VALUES (null, ?, ?)";
+        $conn->prepare($order_query)->execute([$order_date, $cust_id]);
+
+        $order_num = $conn->lastInsertId();
+
+        // Then, add records to `vendor.order_items`
+        foreach ($orders["orders"] as $pk => $pv) {
+            $price = $this->getProductPrice($pv["category"], $pv["item"]);
+
+            $query = "insert into order_items(seq_id, dev_id, order_num, category, item, param, quantity, price) VALUES (null, ?, ?, ?, ?, ?, ?, ?)";
+
+            $stmt = $conn->prepare($query);
+            $stmt->execute([$pv["dev_id"], $order_num, $pv["category"], $pv["item"], $pv["param"], $pv["quantity"], $price]);
+        }
+
+        $conn->commit();
 
     }
 
 
     /**
      * @param string $cust_name
+     *
      * @return mixed
      */
     private function getCustID(string $cust_name)
@@ -263,12 +288,29 @@ class VendorAdd extends PlatformAdd
 
 
     /**
+     * @param string $category
      * @param string $item
-     * @return mixed
+     *
+     * To get the price of a product belonging to certain category
+     *
+     * @return string
      */
-    private function getProductPrice($item)
+    private function getProductPrice(string $category,string $item)
     {
         $conn = $this->VDBHandler();
+
+        $query = "";
+
+        // Feel free to add more products
+        if ($category == "param") {
+            $query = "select price from product_param where item = '" . $item . "'";
+        } elseif ($category == "addition_services") {
+            $query = "select price from product_addition where item = '" . $item . "'";
+        }
+
+        $row = $conn->query($query)->fetch(PDO::FETCH_OBJ);
+
+        return $row->price;
     }
 
 }

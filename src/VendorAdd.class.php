@@ -113,14 +113,11 @@ class VendorAdd extends PlatformAdd
     {
         $conn = new ReDB("vendor");
 
-        $info_array = json_decode($json, true);
+        $info = json_decode($json, true)["customer"];
 
-        $cust_name = $info_array["customer"]["cust_name"];
-        unset($info_array["customer"]["cust_name"]);
+        $query = "update customer_info set cust_contact=?, cust_tel=?, cust_mail=? where cust_name=?";
 
-        $query = "update customer_info set cust_contact=?, cust_tel=?, cust_mail=? where cust_name='" . $cust_name . "'";
-
-        $conn->prepare($query)->execute([array_values($info_array["customer"])]);
+        $conn->prepare($query)->execute([$info["cust_contact"], $info["cust_tel"], $info["cust_mail"], $info["cust_name"]]);
     }
 
 
@@ -172,6 +169,7 @@ class VendorAdd extends PlatformAdd
      * @see Vendor::addDevice()
      *
      * add params need to be monitored for device(s)
+     * if the values are not given, they will be set to (float) 0
      *
      * Next, if the customer want to buy some service,
      * @see Vendor::addOrder()
@@ -189,7 +187,8 @@ class VendorAdd extends PlatformAdd
             foreach ($pv["params"] as $ck => $cv) {
                 $query = "insert into params_ref(seq_id, dev_id, param, freq, min, max, abnormal_duration, extra) VALUES(null,?,?,?,?,?,?,?)";
                 $stmt = $conn->prepare($query);
-                $stmt->execute([$pv["dev_id"], $ck, $cv["freq"], $cv["min"], $cv["max"], $cv["duration"], $cv["extra"]]);
+                // Notice here, the conversion is essential for inserting data into the table
+                $stmt->execute([$pv["dev_id"], $ck, $cv["freq"], (float)$cv["min"], (float)$cv["max"], (float)$cv["abnormal_duration"], $cv["extra"]]);
             }
         }
 

@@ -56,7 +56,7 @@ INSERT INTO orders (order_num, order_date, cust_id) VALUES
 (20000, '2019-04-01', 10000);
 
 CREATE TABLE order_items (
-    seq_id int NOT NULL,
+    seq_id int AUTO_INCREMENT NOT NULL,
     dev_id char(20) NOT NULL,
     order_num int NOT NULL,
     category char(30) NOT NULL,
@@ -67,6 +67,9 @@ CREATE TABLE order_items (
     table_status tinyint(10) NOT NULL DEFAULT 0,
     PRIMARY KEY (seq_id)
 ) ENGINE = InnoDB;
+
+INSERT INTO order_items (seq_id, dev_id, order_num, category, item, param, quantity, price, table_status) VALUES
+(1, 'ONE', 20000, 'ONE', 'ONE', 'ONE', 1, 0, 0);
 
 CREATE TABLE product_param (
     item char(20) NOT NULL,
@@ -79,10 +82,10 @@ CREATE TABLE product_param (
 ) ENGINE = InnoDB;
 
 INSERT INTO product_param (item, freq_min, freq_max, charging, price, description) VALUES
-("param_small", 0, 100, "subscription/month", 200, "for params with a low frequency"),
-("param_middle" , 101, 500, "subscription/month", 400, "for params with a relatively high frequency"),
-("param_high" , 501, 800, "subscription/month", 700, "for params with a high frequency"),
-("param_extra" , 801, null, "subscription/month", 1000, "for params with an extremely high frequency");
+('param_small', 0, 100, 'subscription/month', 200, 'for params with a low frequency'),
+('param_middle' , 101, 500, 'subscription/month', 400, 'for params with a relatively high frequency'),
+('param_high' , 501, 800, 'subscription/month', 700, 'for params with a high frequency'),
+('param_extra' , 801, null, 'subscription/month', 1000, 'for params with an extremely high frequency');
 
 CREATE TABLE product_addition (
     item char(20) NOT NULL,
@@ -93,9 +96,9 @@ CREATE TABLE product_addition (
 ) ENGINE = InnoDB;
 
 INSERT INTO product_addition (item, charging, price, description) VALUES
-("alarm", "subscription/calculation", 2, "the price is multiplied by this price and the amount of params per second"),
-("graph", "subscription/calculation", 5, "the price is multiplied by this price and the amount of params per second"),
-("dignosis", "subscription/calculation", 10, "the price is multiplied by this price and the amount of params per second");
+('alarm', 'subscription/calculation', 2, 'the price is multiplied by this price and the amount of params per second'),
+('graph', 'subscription/calculation', 5, 'the price is multiplied by this price and the amount of params per second'),
+('diagnosis', 'subscription/calculation', 10, 'the price is multiplied by this price and the amount of params per second');
 
 
 COMMIT;

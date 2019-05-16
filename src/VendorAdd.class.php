@@ -14,6 +14,7 @@ use Moech\Data\ReDB;
 
 // PHP Extensions to be used
 use PDO;
+use PDOException;
 
 class VendorAdd extends PlatformAdd
 {
@@ -80,16 +81,22 @@ class VendorAdd extends PlatformAdd
 
         // @todo Encryption of password
 
-        $conn->beginTransaction();
-        // Insert registration to table `customer_reg`
-        $query = "insert into customer_reg(username, user_mail, password, cust_name) VALUES (?, ?, ?, ?)";
-        $conn->prepare($query)->execute(array_values($reg_info_array["registration"]));
+        try {
+            $conn->beginTransaction();
+            // Insert registration to table `customer_reg`
+            $query = "insert into customer_reg(username, user_mail, password, cust_name) VALUES (?, ?, ?, ?)";
+            $conn->prepare($query)->execute(array_values($reg_info_array["registration"]));
 
-        // Next, insert customer name into `customer_info`
-        $query = "insert into customer_info(cust_id, cust_name) values (null, ?)";
-        $conn->prepare($query)->execute([$reg_info_array["registration"]["cust_name"]]);
+            // Next, insert customer name into `customer_info`
+            $query = "insert into customer_info(cust_id, cust_name) values (null, ?)";
+            $conn->prepare($query)->execute([$reg_info_array["registration"]["cust_name"]]);
 
-        $conn->commit();
+            $conn->commit();
+        } catch (PDOException $e) {
+            $conn->errorLogWriter($e);
+            $conn->rollBack();
+        }
+
     }
 
 
@@ -144,16 +151,21 @@ class VendorAdd extends PlatformAdd
 
         $conn = new ReDB("vendor");
 
-        $conn->beginTransaction();
+        try {
+            $conn->beginTransaction();
 
-        // Insert into `vendor.devices` elegantly
-        foreach ($dev_arr["dev"] as $pk => $pv) {
-            $query = "insert into devices(dev_id, cust_id, cust_name, province, city) VALUES(?, ?, ?, ?, ?)";
-            $stmt = $conn->prepare($query);
-            $stmt->execute([$pv["dev_id"], $cust_id, $dev_arr["cust_name"], $pv["province"], $pv["city"]]);
+            // Insert into `vendor.devices` elegantly
+            foreach ($dev_arr["dev"] as $pk => $pv) {
+                $query = "insert into devices(dev_id, cust_id, cust_name, province, city) VALUES(?, ?, ?, ?, ?)";
+                $stmt = $conn->prepare($query);
+                $stmt->execute([$pv["dev_id"], $cust_id, $dev_arr["cust_name"], $pv["province"], $pv["city"]]);
+            }
+
+            $conn->commit();
+        } catch (PDOException $e) {
+            $conn->errorLogWriter($e);
+            $conn->rollBack();
         }
-
-        $conn->commit();
     }
 
 
@@ -181,18 +193,23 @@ class VendorAdd extends PlatformAdd
 
         $param_info = json_decode($json, true);
 
-        $conn->beginTransaction();
+        try {
+            $conn->beginTransaction();
 
-        foreach ($param_info as $pk => $pv) {
-            foreach ($pv["params"] as $ck => $cv) {
-                $query = "insert into params_ref(seq_id, dev_id, param, freq, min, max, abnormal_duration, extra) VALUES(null,?,?,?,?,?,?,?)";
-                $stmt = $conn->prepare($query);
-                // Notice here, the conversion is essential for inserting data into the table
-                $stmt->execute([$pv["dev_id"], $ck, $cv["freq"], (float)$cv["min"], (float)$cv["max"], (float)$cv["abnormal_duration"], $cv["extra"]]);
+            foreach ($param_info as $pk => $pv) {
+                foreach ($pv["params"] as $ck => $cv) {
+                    $query = "insert into params_ref(seq_id, dev_id, param, freq, min, max, abnormal_duration, extra) VALUES(null,?,?,?,?,?,?,?)";
+                    $stmt = $conn->prepare($query);
+                    // Notice here, the conversion is essential for inserting data into the table
+                    $stmt->execute([$pv["dev_id"], $ck, $cv["freq"], (float)$cv["min"], (float)$cv["max"], (float)$cv["abnormal_duration"], $cv["extra"]]);
+                }
             }
-        }
 
-        $conn->commit();
+            $conn->commit();
+        } catch (PDOException $e) {
+            $conn->errorLogWriter($e);
+            $conn->rollBack();
+        }
     }
 
 
@@ -217,26 +234,31 @@ class VendorAdd extends PlatformAdd
 
         $conn = new ReDB("vendor");
 
-        $conn->beginTransaction();
+        try {
+            $conn->beginTransaction();
 
-        // First, add a record to `vendor.orders`
-        $order_query = "insert into orders(order_num, order_date, cust_id) VALUES (null, ?, ?)";
-        $conn->prepare($order_query)->execute([$order_date, $cust_id]);
+            // First, add a record to `vendor.orders`
+            $order_query = "insert into orders(order_num, order_date, cust_id) VALUES (null, ?, ?)";
+            $conn->prepare($order_query)->execute([$order_date, $cust_id]);
 
-        $order_num = $conn->lastInsertId();
+            $order_num = $conn->lastInsertId();
 
-        // Then, add records to `vendor.order_items`
-        foreach ($orders["orders"] as $pk => $pv) {
-            $price = $this->getProductPrice($pv["category"], $pv["item"]);
+            // Then, add records to `vendor.order_items`
+            foreach ($orders["orders"] as $pk => $pv) {
+                $price = $this->getProductPrice($pv["category"], $pv["item"]);
 
-            $query = "insert into order_items(seq_id, dev_id, order_num, category, item, param, quantity, price) VALUES (null, ?, ?, ?, ?, ?, ?, ?)";
+                $query = "insert into order_items(seq_id, dev_id, order_num, category, item, param, quantity, price) VALUES (null, ?, ?, ?, ?, ?, ?, ?)";
 
-            $stmt = $conn->prepare($query);
-            $stmt->execute([$pv["dev_id"], $order_num, $pv["category"], $pv["item"], $pv["param"], $pv["quantity"], $price]);
+                $stmt = $conn->prepare($query);
+                $stmt->execute([$pv["dev_id"], $order_num, $pv["category"], $pv["item"], $pv["param"], $pv["quantity"], $price]);
+            }
+
+            $conn->commit();
+
+        } catch (PDOException $e) {
+            $conn->errorLogWriter($e);
+            $conn->rollBack();
         }
-
-        $conn->commit();
-
     }
 
 

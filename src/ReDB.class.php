@@ -27,12 +27,16 @@ class ReDB extends PDO
         try {
             parent::__construct($dsn, $ini["ReDB_USER"], $ini["ReDB_PASSWD"]);
         } catch (PDOException $e) {
-            chmod(__DIR__ . "/log/DB_Error.log", 0755);
-            $fp = fopen(__DIR__ . "/log/DB_Error.log", "a+");
-            fwrite($fp, date("Y-m-d H:i:s") . ": " . $e->getMessage() . "\n");
-            fwrite($fp, __METHOD__ . "\n\n");
-            fclose($fp);
+            $this->errorLogWriter($e);
         }
     }
 
+    public function errorLogWriter(object $PDOException, string $path_to_log = __DIR__ . "/../log/ReDB_error.log")
+    {
+        chmod($path_to_log, 0755);
+        $fp = fopen($path_to_log, "a+");
+        fwrite($fp, date("Y-m-d H:i:s") . ": " . $PDOException->getMessage() . "\n");
+        fwrite($fp, __METHOD__ . "\n\n");
+        fclose($fp);
+    }
 }

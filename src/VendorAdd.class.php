@@ -4,34 +4,19 @@
 namespace Moech\Vendor;
 
 // Abstract class to be extended
-require __dir__ . "/../Abstraction/PlatformAdd.abstract.php";
+require __DIR__ . "/Abstraction/PlatformAdd.abstract.php";
 
 // Classes to be used
-require 'RDB.class.php';
+require __DIR__ . "/ReDB.class.php";
 
 use Moech\AbstractClass\PlatformAdd;
-use Moech\Data\RDB;
+use Moech\Data\ReDB;
 
 // PHP Extensions to be used
 use PDO;
 
 class VendorAdd extends PlatformAdd
 {
-
-    protected $db_name;
-    protected $config_file;
-
-    /**
-     * Vendor constructor.
-     *
-     * Load the configuration file to instantiate an object
-     */
-    public function __construct()
-    {
-        $this->config_file = __dir__ . '/../config/vendor.ini';
-        $this->db_name = parse_ini_file($this->config_file)["VENDOR_DB"];
-    }
-
 
     /**
      * @param $name
@@ -43,18 +28,6 @@ class VendorAdd extends PlatformAdd
         if (isset($this->$name)) {
             echo $this->$name;
         }
-    }
-
-
-    /**
-     * To return a PDO instance for utility
-     *
-     * @return object
-     */
-    private function VDBHandler() {
-        $db = new RDB();
-        $conn = $db->dataLink($this->db_name, $this->config_file);
-        return $conn;
     }
 
 
@@ -72,7 +45,7 @@ class VendorAdd extends PlatformAdd
      */
     public function addProduct(string $json)
     {
-        $conn = $this->VDBHandler();
+        $conn = new ReDB("vendor");
 
         $info = json_decode($json, true);
 
@@ -101,7 +74,7 @@ class VendorAdd extends PlatformAdd
      */
     public function addCustomerSignUp(string $json)
     {
-        $conn = $this->VDBHandler();
+        $conn = new ReDB("vendor");
 
         $reg_info_array = json_decode($json, true);
 
@@ -138,7 +111,7 @@ class VendorAdd extends PlatformAdd
      */
     public function addCustomerInfo(string $json)
     {
-        $conn = $this->VDBHandler();
+        $conn = new ReDB("vendor");
 
         $info_array = json_decode($json, true);
 
@@ -172,7 +145,7 @@ class VendorAdd extends PlatformAdd
 
         $cust_id = $this->getCustID($dev_arr['cust_name']);
 
-        $conn = $this->VDBHandler();
+        $conn = new ReDB("vendor");
 
         $conn->beginTransaction();
 
@@ -206,7 +179,7 @@ class VendorAdd extends PlatformAdd
      */
     public function addDeviceParamInfo(string $json)
     {
-        $conn = $this->VDBHandler();
+        $conn = new ReDB("vendor");
 
         $param_info = json_decode($json, true);
 
@@ -243,7 +216,7 @@ class VendorAdd extends PlatformAdd
         date_default_timezone_set("Asia/Shanghai");
         $order_date = date("Y-m-d");
 
-        $conn = $this->VDBHandler();
+        $conn = new ReDB("vendor");
 
         $conn->beginTransaction();
 
@@ -275,7 +248,7 @@ class VendorAdd extends PlatformAdd
      */
     private function getCustID(string $cust_name)
     {
-        $conn = $this->VDBHandler();
+        $conn = new ReDB("vendor");
 
         $query = "select cust_id from customer_info where cust_name = ?";
         $stmt = $conn->prepare($query);
@@ -297,7 +270,7 @@ class VendorAdd extends PlatformAdd
      */
     private function getProductPrice(string $category,string $item)
     {
-        $conn = $this->VDBHandler();
+        $conn = new ReDB("vendor");
 
         $query = "";
 

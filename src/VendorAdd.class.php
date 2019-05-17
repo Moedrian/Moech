@@ -3,13 +3,12 @@
 
 namespace Moech\Vendor;
 
+require __DIR__ . "/../vendor/autoload.php";
+
 // Abstract class to be extended
-require __DIR__ . "/Abstraction/PlatformAdd.abstract.php";
+use Moech\AbstractClass\PlatformAdd;
 
 // Classes to be used
-require __DIR__ . "/ReDB.class.php";
-
-use Moech\AbstractClass\PlatformAdd;
 use Moech\Data\ReDB;
 
 // PHP Extensions to be used

@@ -83,7 +83,7 @@ class VendorAdd extends PlatformAdd
         try {
             $conn->beginTransaction();
             // Insert registration to table `customer_reg`
-            $query = "insert into customer_reg(username, user_mail, password, cust_name) VALUES (?, ?, ?, ?)";
+            $query = "insert into customer_sign_up(username, user_mail, password, cust_name) VALUES (?, ?, ?, ?)";
             $conn->prepare($query)->execute(array_values($reg_info_array["registration"]));
 
             // Next, insert customer name into `customer_info`

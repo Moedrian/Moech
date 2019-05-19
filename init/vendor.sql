@@ -39,6 +39,7 @@ CREATE TABLE devices (
     cust_name char(50) NOT NULL,
     province char(30) NOT NULL,
     city char(30) NOT NULL,
+    instance_id int DEFAULT NULL,
     PRIMARY KEY (dev_id)
 ) ENGINE = InnoDB;
 
@@ -89,14 +90,20 @@ INSERT INTO order_items (seq_id, dev_id, order_num, category, item, param, quant
 -- One customer may have more than one instance depending on the scale.
 -- After the instance is ready,
 -- deployment_status and config_status will be set to 1
-CREATE TABLE instance_list (
-    instance_id int NOT NULL AUTO_INCREMENT,
-    cust_name char(50) NOT NULL,
+-- And when the server instance is overload,
+-- the load_status will be set to 1
+CREATE TABLE instances (
+    instance_id int NOT NULL,
     cust_id int NOT NULL,
-    deployment_status tinyint(10) NOT NULL DEFAULT 0,
-    config_status tinyint(10) NOT NULL DEFAULT 0,
+    cust_name char(50) NOT NULL,
+    dep_status tinyint NOT NULL DEFAULT 0,
+    cfg_status tinyint NOT NULL DEFAULT 0,
+    load_status tinyint NOT NULL DEFAULT 0,
     PRIMARY KEY (instance_id)
 );
+
+INSERT INTO instances (instance_id, cust_name, cust_id) VALUES
+(30000, 'Nano Inc.', 10000);
 
 -- To store the index of param monitoring products.
 CREATE TABLE product_param (

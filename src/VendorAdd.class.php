@@ -242,15 +242,61 @@ class VendorAdd extends PlatformAdd
 
             $order_num = $conn->lastInsertId();
 
+            // to get device list for deployment check in next step
+            $dev_list = array();
+
             // Then, add records to `vendor.order_items`
             foreach ($orders["orders"] as $pk => $pv) {
                 $price = $this->getProductPrice($pv["category"], $pv["item"]);
 
-                $query = "insert into order_items(seq_id, dev_id, order_num, category, item, param, quantity, price) VALUES (null, ?, ?, ?, ?, ?, ?, ?)";
+                array_push($dev_list, $pv["dev_id"]);
 
+                $query = "insert into order_items(seq_id, dev_id, order_num, category, item, param, quantity, price) VALUES (null, ?, ?, ?, ?, ?, ?, ?)";
                 $stmt = $conn->prepare($query);
                 $stmt->execute([$pv["dev_id"], $order_num, $pv["category"], $pv["item"], $pv["param"], $pv["quantity"], $price]);
             }
+
+            // a final result of device list
+            $dev_list = array_unique($dev_list);
+
+            /**
+             * The purpose of this `vendor.instance` presupposes that a customer may
+             * have so many devices that the company need more than one instance to
+             * handle the demands.
+             *
+             * And there is a column in `vendor.devices` to record the deployment status
+             *
+             * And @todo still no practical way to identify if an instance is overload or not
+             */
+            $check_query = "select * from instances where cust_id=? and load_status=0";
+            $stmt = $conn->prepare($check_query);
+            $stmt->execute($cust_id);
+            $row = $stmt->fetch(PDO::FETCH_OBJ);
+
+            if (is_null($row)) {
+                // if there's no available server, insert a record to be deployed
+                $instance_query = "insert into instances(cust_name, cust_id) VALUES (?, ?)";
+                $conn->prepare($instance_query)->execute([$cust_name, $cust_id]);
+                // the system maintainer should try best to avoid this situation
+            } elseif (!is_null($row)) {
+                // an order may contains more than one device
+                // if a device had an instance already, append items, that is, do nothing
+                // if not, the instance_id will be added to the column
+                // `vendor.devices.instance_id`
+                for($i =0; $i < count($dev_list); $i++) {
+                    $dev_query = "select instance_id from devices where dev_id=?";
+                    $stmt2 = $conn->prepare($dev_query);
+                    $stmt2->execute($dev_list[$i]);
+                    $res = $stmt2->fetch(PDO::FETCH_OBJ);
+
+                    if (empty($res->instance_id)) {
+                        $update_query = "update devices set instance_id=? where dev_id=?";
+                        $conn->prepare($update_query)->execute([$row->instance_id, $dev_list[$i]]);
+                    }
+                }
+            }
+
+            // After this, a method shall be created to fulfill the status, but not here
 
             $conn->commit();
 

@@ -11,19 +11,30 @@ class ReDB extends PDO
      * ReDB constructor.
      * @param string $type
      * @param int $instance_id
-     * @param string $dev_id
+     * @param string $db_name
      *
      * To instantiate pdo in vendor database directly
      * or modify the default value to connect to a customer's instance
+     *
+     * @see DeployInstance::generateConfigFile() for details
      */
-    public function __construct(string $type, int $instance_id = 10000, string $dev_id = "devices")
+    public function __construct(string $type, int $instance_id = 10000, string $db_name = "management_info")
     {
+        $dsn = "Empty dsn set";
+        $ini = array("Empty config parsing result");
+
         if ($type == "vendor") {
+            // For vendor common utility
             $ini = parse_ini_file(__DIR__ . "/../config/vendor.ini");
             $dsn = $ini["ReDB_NAME"] . ":host=" . $ini["HOST"] . ";dbname=" . $ini["VENDOR_DB"];
         } elseif ($type == "customer") {
-            $ini = parse_ini_file(__DIR__ . "/../config/" . $instance_id . ".ini");
-            $dsn = $ini["ReDB_NAME"] . ":host=" . $ini["HOST"] . ";dbname=" . $dev_id;
+            // For vendor deployment utility before deployment
+            $ini = parse_ini_file(__DIR__ . "/../deploy/instance_" . $instance_id . "/config/");
+            $dsn = $ini["ReDB_NAME"] . ":host=" . $ini["HOST"] . ";dbname=" . $db_name;
+        } elseif ($type == "localhost") {
+            // For customer common utility after deployment
+            $ini = parse_ini_file(__DIR__. "/../config/config.ini");
+            $dsn = $ini["ReDB_NAME"] . ":host=" . $ini["HOST"] . ";dbname=" . $db_name;
         }
 
         try {

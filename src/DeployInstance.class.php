@@ -5,7 +5,8 @@ namespace Moech\Deploy;
 
 require __DIR__ . "/../vendor/autoload.php";
 
-// Abstract class to be extended:
+
+// Abstract class to be extended
 use Moech\AbstractClass\DeployBackend;
 
 use Zend\Config\Config as Config;

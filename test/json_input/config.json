@@ -1,0 +1,13 @@
+{
+    "property": {
+        "DB": "CUSTOMER_CERTAIN_MACHINE"
+    },
+    "network": {
+        "HOST": "xxx.xxx.xxx.xxx"
+    },
+    "database": {
+        "ReDB_NAME": "MySQL",
+        "ReDB_USER": "SomeUser",
+        "ReDB_PASSWD": "A Strong Password"
+    }
+}

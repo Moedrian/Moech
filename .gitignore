@@ -15,4 +15,6 @@ test/basic/
 
 # ignore private config files
 config/vendor.ini
-config/customer.ini
+
+# ignore deploy files
+deploy/

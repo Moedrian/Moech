@@ -26,15 +26,15 @@ class ReDB extends PDO
         if ($type == "vendor") {
             // For vendor common utility
             $ini = parse_ini_file(__DIR__ . "/../config/vendor.ini");
-            $dsn = $ini["ReDB_NAME"] . ":host=" . $ini["HOST"] . ";dbname=" . $ini["VENDOR_DB"];
+            $dsn = $ini["ReDB_TYPE"] . ":host=" . $ini["HOST"] . ";dbname=" . $ini["VENDOR_DB"];
         } elseif ($type == "customer") {
             // For vendor deployment utility before deployment
             $ini = parse_ini_file(__DIR__ . "/../deploy/instance_" . $instance_id . "/config/");
-            $dsn = $ini["ReDB_NAME"] . ":host=" . $ini["HOST"] . ";dbname=" . $db_name;
+            $dsn = $ini["ReDB_TYPE"] . ":host=" . $ini["HOST"] . ";dbname=" . $db_name;
         } elseif ($type == "localhost") {
             // For customer common utility after deployment
             $ini = parse_ini_file(__DIR__. "/../config/config.ini");
-            $dsn = $ini["ReDB_NAME"] . ":host=" . $ini["HOST"] . ";dbname=" . $db_name;
+            $dsn = $ini["ReDB_TYPE"] . ":host=" . $ini["HOST"] . ";dbname=" . $db_name;
         }
 
         try {
@@ -55,7 +55,7 @@ class ReDB extends PDO
         chmod($path_to_log, 0755);
         $fp = fopen($path_to_log, "a+");
         fwrite($fp, date("Y-m-d H:i:s") . ": " . $PDOException->getMessage() . "\n");
-        fwrite($fp, __METHOD__ . "\n\n");
+        fwrite($fp, "Error found in " . __FILE__ . " in " . __LINE__ . "\n\n");
         fclose($fp);
     }
 

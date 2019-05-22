@@ -9,7 +9,7 @@ use Moech\Data\ReDB;
 
 use PDO;
 
-trait VendorInfo
+trait VendorTool
 {
 
     /**

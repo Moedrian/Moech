@@ -19,7 +19,7 @@ use PDOException;
 class VendorAdd extends PlatformAdd
 {
     // Traits to be used
-    use VendorInfo;
+    use VendorTool;
 
     /**
      * @param $name

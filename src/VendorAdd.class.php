@@ -18,6 +18,8 @@ use PDOException;
 
 class VendorAdd extends PlatformAdd
 {
+    // Traits to be used
+    use VendorInfo;
 
     /**
      * @param $name
@@ -324,52 +326,6 @@ class VendorAdd extends PlatformAdd
             $conn->errorLogWriter($e);
             $conn->rollBack();
         }
-    }
-
-
-    /**
-     * @param string $cust_name
-     *
-     * @return mixed
-     */
-    private function getCustID(string $cust_name)
-    {
-        $conn = new ReDB("vendor");
-
-        $query = "select cust_id from customer_info where cust_name = ?";
-        $stmt = $conn->prepare($query);
-        $stmt->execute([$cust_name]);
-
-        $row = $stmt->fetch(PDO::FETCH_OBJ);
-
-        return $row->cust_id;
-    }
-
-
-    /**
-     * @param string $category
-     * @param string $item
-     *
-     * To get the price of a product belonging to certain category
-     *
-     * @return string
-     */
-    private function getProductPrice(string $category,string $item)
-    {
-        $conn = new ReDB("vendor");
-
-        $query = "";
-
-        // Feel free to add more products
-        if ($category == "param") {
-            $query = "select price from product_param where item = '" . $item . "'";
-        } elseif ($category == "addition_services") {
-            $query = "select price from product_addition where item = '" . $item . "'";
-        }
-
-        $row = $conn->query($query)->fetch(PDO::FETCH_OBJ);
-
-        return $row->price;
     }
 
 }

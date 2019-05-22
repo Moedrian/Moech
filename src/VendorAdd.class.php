@@ -10,6 +10,7 @@ use Moech\AbstractClass\PlatformAdd;
 
 // Classes to be used
 use Moech\Data\ReDB;
+use Moech\Deploy\DeployInstance;
 
 // PHP Extensions to be used
 use PDO;
@@ -60,6 +61,25 @@ class VendorAdd extends PlatformAdd
         $conn->prepare($query)->execute(array_values($info["product"]));
     }
 
+    /**
+     * Add a row for a new instance
+     *
+     * @return mixed $instance_id
+     */
+    public function addInstance()
+    {
+        $conn = new ReDB("vendor");
+
+        $conn->prepare("insert into instances(instance_id) values (null)")->execute();
+
+        $instance_id = $conn->lastInsertId();
+
+        // Initialize directories here
+        $dep = new DeployInstance();
+        $dep->generateDir($instance_id);
+
+        return $instance_id;
+    }
 
     /**
      * @param string $json

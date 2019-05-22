@@ -94,8 +94,8 @@ INSERT INTO order_items (seq_id, dev_id, order_num, category, item, param, quant
 -- the load_status will be set to 1
 CREATE TABLE instances (
     instance_id int NOT NULL,
-    cust_id int NOT NULL,
-    cust_name char(50) NOT NULL,
+    cust_id int DEFAULT NULL,
+    cust_name char(50) DEFAULT NULL,
     dep_status tinyint NOT NULL DEFAULT 0,
     cfg_status tinyint NOT NULL DEFAULT 0,
     load_status tinyint NOT NULL DEFAULT 0,

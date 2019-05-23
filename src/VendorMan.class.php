@@ -3,7 +3,7 @@
 
 namespace Moech\Vendor;
 
-require __DIR__ . "/../vendor/autoload.php";
+require __DIR__ . '/../vendor/autoload.php';
 
 use Moech\Data\ReDB;
 use Moech\Deploy\DeployInstance;
@@ -16,38 +16,32 @@ use PDOException;
  */
 class VendorMan
 {
+    // Traits to be used
+    use VendorTool;
 
     /**
      * USE AFTER INSTANCE CREATION
      *
-     * After the config file is generated,
-     * `instances.cfg_status` will be set to true
-     *
-     * After the instance get occupied by certain customer,
-     * `instances.dep_status` will be set to true. Meanwhile,
-     * column `instances.cust_id` & `instances.cust_name` will be filled
-     *
-     * Column `instances.load_status` is a
-     * @todo mf!
-     *
      * @param int $instance_id
-     * @param string $status "deploy" || config || load
-     *
+     * @param string $status
+     *              'deploy' - the web app installation is completed
+     *              'config' - the instance is ready to go
+     *              'load'   - the instance could no longer be allocated
      * @throws PDOException
      */
-    public function setInstanceStatusTrue(int $instance_id, string $status)
+    public function setInstanceStatus(int $instance_id, string $status): void
     {
-        $set_query = "Empty Query";
+        $set_query = 'Empty Query';
 
-        if ($status == "deploy") {
-            $set_query = "update instances set dep_status=1 where instance_id=?";
-        } elseif ($status == "config") {
-            $set_query = "update instances set dep_status=1 where instance_id=?";
-        } elseif ($status == "load") {
-            $set_query = "update instances set dep_status=1 where instance_id=?";
+        if ($status === 'deploy') {
+            $set_query = 'update instances set dep_status=1 where instance_id=?';
+        } elseif ($status === 'config') {
+            $set_query = 'update instances set dep_status=1 where instance_id=?';
+        } elseif ($status === 'load') {
+            $set_query = 'update instances set dep_status=1 where instance_id=?';
         }
 
-        $conn = new ReDB("vendor");
+        $conn = new ReDB('vendor');
 
         try {
             $conn->prepare($set_query)->execute([$instance_id]);
@@ -55,6 +49,7 @@ class VendorMan
             $conn->errorLogWriter($e);
         }
     }
+
 
     /**
      * Prepares for the config file
@@ -64,72 +59,74 @@ class VendorMan
      * @param int $instance_id comes from {@see VendorAdd::AddInstance()}
      * @param string $json {@example test/json_input/config.json}
      */
-    public function addInstanceConfig(int $instance_id, string $json)
+    public function addInstanceConfig(int $instance_id, string $json): void
     {
         $dep = new DeployInstance();
+
+        $dep->generateDir($instance_id);
+
         $dep->generateConfigFile($instance_id, $json);
 
-        // After the config is well prepared, set the status to true
-        $this->setInstanceStatusTrue($instance_id, "config");
-    }
+        $cust_conn = new ReDB('customer', $instance_id);
 
-
-
-    public function allocateInstanceToCustomers(string $cust_name, int $cust_id, int $instance_id)
-    {
-
-    }
-
-    public function allocateInstanceForDevices(array $devices)
-    {
-    }
-
-    /**
-     * Create database fo
-     *
-     * After an order was created, this function shall be executed
-     * Scan that instance_list
-     * Meanwhile this function requires a ready-to-go server instance
-     *
-     * @param int $instance_id
-     * @throws PDOException
-     */
-    public function initiateDatabase(int $instance_id)
-    {
-        $cust_conn = new ReDB("customer", $instance_id);
-
-        $dep = new DeployInstance();
+        $customer_init_sql = file_get_contents(__DIR__ . '/../init/customer.sql');
 
         try {
             // Create basic databases for customer side management
-            $cust_conn->prepare($dep->initializeDatabase())->execute();
+            $cust_conn->prepare($customer_init_sql)->execute();
         } catch (PDOException $e) {
             $cust_conn->errorLogWriter($e);
         }
 
-        $vendor_conn = new ReDB("vendor");
+        // After the config is well prepared, set the status to true
+        $this->setInstanceStatus($instance_id, 'config');
+    }
+
+
+    /**
+     * As the name suggests
+     *
+     * After the order is confirmed, this method will be executed
+     *
+     * @param int $instance_id
+     * @param string $cust_name
+     * @uses VendorInfo::getCustID()
+     * @throws PDOException
+     */
+    public function allocateInstanceToCustomer(int $instance_id, string $cust_name): void
+    {
+        $cust_id = $this->getCustID($cust_name);
+
+        $update_query = 'update instances set cust_id=? and  cust_name=? where instance_id=?';
+
+        $conn = new ReDB('vendor');
 
         try {
-            // Create databases for devices under certain customer
-            $vendor_conn->beginTransaction();
-
-            $query = "select dev_id from devices where cust_id=(select cust_id from instances where instance_id=?)";
-
-            $stmt = $vendor_conn->prepare($query);
-            $stmt->execute([$instance_id]);
-
-            $devices = $stmt->fetchAll(PDO::FETCH_COLUMN);
-
-            foreach ($devices as $dev) {
-                $query = "create database if not exist $dev default character set utf8mb4 collate utf8mb4_unicode_ci";
-                $vendor_conn->prepare($query)->execute();
-            }
-
-            $vendor_conn->commit();
-
+            $conn->prepare($update_query)->execute([$cust_id, $cust_name, $instance_id]);
         } catch (PDOException $e) {
-            $vendor_conn->errorLogWriter($e);
-            $vendor_conn->rollBack();
+            $conn->errorLogWriter($e);
+        }
+    }
+
+    public function allocateInstanceToDevices(array $devices)
+    {
+    }
+
+
+
+    /**
+     * @param string $param space delimiter is allowed
+     * @param object $pdo an ReDB instance
+     */
+    public function createParamTable(string $param, object $pdo): void
+    {
+        $param = str_replace(' ', '_', $param);
+
+        try {
+            $query = 'create table ? (crt_time datetime(3) not null, value float(6,2) not null) engine=MyISAM';
+            $pdo->prepare($query)->execute([$param]);
+        } catch (PDOException $e) {
+            $pdo->errorLogWriter($e);
         }
     }
 
@@ -140,7 +137,7 @@ class VendorMan
      * A server instance shall be ready before this function get executed.
      * Once the
      */
-    public function instantiateOrder(string $order_num)
+    public function instantiateOrder(string $order_num): void
     {
     }
 

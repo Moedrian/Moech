@@ -1,10 +1,10 @@
 <?php
 
 
-namespace Moech\AbstractClass;
+namespace Moech\Interfaces;
 
 
-abstract class DeployBackend
+interface DeployBackend
 {
     // THERE ISN'T ANY DATABASE OPERATION IN THIS CLASS
 
@@ -13,7 +13,7 @@ abstract class DeployBackend
      *
      * To create directories for a new instance
      */
-    abstract public function generateDir(int $instance_id);
+    public function generateDir(int $instance_id);
 
 
     /**
@@ -22,19 +22,19 @@ abstract class DeployBackend
      *
      * To generate the config files for a new instance, Platform or DeviceManufacturer
      */
-    abstract public function generateConfigFile(int $instance_id, string $json);
+    public function generateConfigFile(int $instance_id, string $json);
 
     /**
      * @param string $sql_path
      *
      * To create Relative Databases instance
      */
-    abstract public function initializeDatabase(string $sql_path);
+    public function initializeDatabase(string $sql_path);
 
     /**
      * @param string $config_path
      *
      * To create Cache configurations
      */
-    abstract public function initializeCache(string $config_path);
+    public function initializeCache(string $config_path);
 }

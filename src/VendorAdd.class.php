@@ -5,8 +5,8 @@ namespace Moech\Vendor;
 
 require __DIR__ . '/../vendor/autoload.php';
 
-// Abstract class to be extended
-use Moech\AbstractClass\PlatformAdd;
+// Interface to be implemented
+use Moech\Interfaces\PlatformAdd;
 
 // Classes to be used
 use Moech\Data\ReDB;
@@ -16,7 +16,7 @@ use Moech\Deploy\DeployInstance;
 use PDO;
 use PDOException;
 
-class VendorAdd extends PlatformAdd
+class VendorAdd implements PlatformAdd
 {
     // Traits to be used
     use VendorTool;

@@ -1,8 +1,8 @@
 <?php
 
-namespace Moech\AbstractClass;
+namespace Moech\Interfaces;
 
-abstract class PlatformAdd
+interface PlatformAdd
 {
 
     /**
@@ -11,7 +11,7 @@ abstract class PlatformAdd
      * One of those basic functions for a Platform.
      *
      */
-    abstract public function addProduct(string $json);
+    public function addProduct(string $json);
 
     /**
      * @param string $json
@@ -19,7 +19,7 @@ abstract class PlatformAdd
      * The first thing a new user would do.
      *
      */
-    abstract public function addCustomerSignUp(string $json);
+    public function addCustomerSignUp(string $json);
 
     /**
      * @param string $json
@@ -28,7 +28,7 @@ abstract class PlatformAdd
      * about the company
      *
      */
-    abstract public function addCustomerInfo(string $json);
+    public function addCustomerInfo(string $json);
 
     /**
      * @param string $json
@@ -36,7 +36,7 @@ abstract class PlatformAdd
      * Time to add devices that company desires to monitor
      *
      */
-    abstract public function addDevice(string $json);
+    public function addDevice(string $json);
 
     /**
      * @param string $json
@@ -44,7 +44,7 @@ abstract class PlatformAdd
      * Next, add device parameters' information for generating orders
      *
      */
-    abstract public function addDeviceParamInfo(string $json);
+    public function addDeviceParamInfo(string $json);
 
     /**
      * @param string $json
@@ -52,6 +52,6 @@ abstract class PlatformAdd
      * Add the params to cart and now the Platform have the orders
      *
      */
-    abstract public function addOrder(string $json);
+    public function addOrder(string $json);
 
 }

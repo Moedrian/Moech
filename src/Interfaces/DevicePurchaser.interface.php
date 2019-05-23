@@ -2,7 +2,7 @@
 
 namespace Moech\AbstractClass;
 
-class DevicePurchaser
+abstract class DevicePurchaser
 {
 
 }

@@ -29,8 +29,9 @@ class ReDB extends PDO
             $dsn = $ini['ReDB_TYPE'] . ':host=' . $ini['HOST'] . ';dbname=' . $ini['VENDOR_DB'];
         } elseif ($type === 'customer') {
             // For vendor deployment utility before deployment
+            // Note here the dbname is not assigned
             $ini = parse_ini_file(__DIR__ . '/../deploy/instance_' . $instance_id . '/config/');
-            $dsn = $ini['ReDB_TYPE'] . ':host=' . $ini['HOST'] . ';dbname=' . $db_name;
+            $dsn = $ini['ReDB_TYPE'] . ':host=' . $ini['HOST'];
         } elseif ($type === 'localhost') {
             // For customer common utility after deployment
             $ini = parse_ini_file(__DIR__. '/../config/config.ini');

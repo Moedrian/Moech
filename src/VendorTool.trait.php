@@ -3,7 +3,7 @@
 
 namespace Moech\Vendor;
 
-require __DIR__ . "/../vendor/autoload.php";
+require __DIR__ . '/../vendor/autoload.php';
 
 use Moech\Data\ReDB;
 
@@ -14,46 +14,43 @@ trait VendorTool
 
     /**
      * @param string $cust_name
-     *
-     * @return mixed
+     * @return mixed cust_id
      */
-    public function getCustID(string $cust_name)
+    public function getCustID(string $cust_name): int
     {
-        $conn = new ReDB("vendor");
+        $conn = new ReDB('vendor');
 
-        $query = "select cust_id from customer_info where cust_name = ?";
+        $query = 'select cust_id from customer_info where cust_name = ?';
         $stmt = $conn->prepare($query);
         $stmt->execute([$cust_name]);
 
-        $row = $stmt->fetch(PDO::FETCH_OBJ);
-
-        return $row->cust_id;
+        return $stmt->fetch(PDO::FETCH_OBJ)->cust_id;
     }
 
 
     /**
-     * @param string $category
-     * @param string $item
-     *
      * To get the price of a product belonging to certain category
      *
-     * @return string
+     * @param string $category
+     * @param string $item
+     * @return float
      */
-    public function getProductPrice(string $category, string $item)
+    public function getProductPrice(string $category, string $item): float
     {
-        $conn = new ReDB("vendor");
+        $conn = new ReDB('vendor');
 
-        $query = "";
+        $query = 'Empty Query';
 
         // Feel free to add more products
-        if ($category == "param") {
-            $query = "select price from product_param where item = '" . $item . "'";
-        } elseif ($category == "addition_services") {
-            $query = "select price from product_addition where item = '" . $item . "'";
+        if ($category === 'param') {
+            $query = 'select price from product_param where item = ?';
+        } elseif ($category === 'addition_services') {
+            $query = 'select price from product_addition where item = ?';
         }
 
-        $row = $conn->query($query)->fetch(PDO::FETCH_OBJ);
+        $stmt = $conn->prepare($query);
+        $stmt->execute([$item]);
 
-        return $row->price;
+        return $stmt->fetch(PDO::FETCH_OBJ)->price;
     }
 }

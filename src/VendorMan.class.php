@@ -1,9 +1,19 @@
 <?php
 
+/**
+ * A class for data modification, that is, management
+ *
+ * @author Moedrian
+ * @package Moech\Vendor\VendorMan
+ * @copyright 2017 - 2021 Moedrian
+ * @license Apache-2.0
+ */
 
 namespace Moech\Vendor;
 
 require __DIR__ . '/../vendor/autoload.php';
+
+use Moech\Interfaces\PlatformMan;
 
 use Moech\Data\ReDB;
 use Moech\Deploy\DeployInstance;
@@ -11,10 +21,8 @@ use Moech\Deploy\DeployInstance;
 use PDO;
 use PDOException;
 
-/**
- * For the management workflow after the data is added into the database
- */
-class VendorMan
+
+class VendorMan implements PlatformMan
 {
     // Traits to be used
     use VendorTool;
@@ -108,10 +116,39 @@ class VendorMan
         }
     }
 
-    public function allocateInstanceToDevices(array $devices)
-    {
-    }
 
+    /**
+     * Updates `devices.instance_id`
+     *
+     * Could be used as a tool or used individually to change the instance_id.
+     *
+     * @param int $instance_id
+     * @param array $devices
+     * @param object $pdo
+     * @throws PDOException
+     */
+    public function allocateInstanceToDevice(int $instance_id, array $devices, object $pdo = null): void
+    {
+        if ($pdo === null) {
+            $pdo = new ReDB('vendor');
+        }
+
+        $query = 'update devices set instance_id = ? where dev_id = ?';
+
+        try {
+            $pdo->beginTransaction();
+
+            foreach ($devices as $device) {
+                $pdo->prepare($query)->execute([$instance_id, $device]);
+            }
+
+            $pdo->commit();
+        } catch (PDOException $e) {
+            $pdo->rollBack();
+            $pdo->errorLogWriter($e);
+        }
+
+    }
 
 
     /**
@@ -132,13 +169,12 @@ class VendorMan
 
 
     /**
-     * @param string $order_num
+     * Parse orders to create tables for params
      *
-     * A server instance shall be ready before this function get executed.
-     * Once the
+     * @param int $order_num
      */
-    public function instantiateOrder(string $order_num): void
+    public function parseOrders(int $order_num): void
     {
-    }
 
+    }
 }

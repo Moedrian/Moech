@@ -1,9 +1,19 @@
 <?php
 
+/**
+ * A class for data modification, that is, management
+ *
+ * @author Moedrian
+ * @package Moech\Vendor\VendorMan
+ * @copyright 2017 - 2021 Moedrian
+ * @license Apache-2.0
+ */
 
 namespace Moech\Vendor;
 
 require __DIR__ . '/../vendor/autoload.php';
+
+use Moech\Interfaces\PlatformMan;
 
 use Moech\Data\ReDB;
 use Moech\Deploy\DeployInstance;
@@ -11,10 +21,8 @@ use Moech\Deploy\DeployInstance;
 use PDO;
 use PDOException;
 
-/**
- * For the management workflow after the data is added into the database
- */
-class VendorMan
+
+class VendorMan implements PlatformMan
 {
     // Traits to be used
     use VendorTool;
@@ -108,37 +116,69 @@ class VendorMan
         }
     }
 
-    public function allocateInstanceToDevices(array $devices)
-    {
-    }
 
+    /**
+     * Updates `devices.instance_id`
+     *
+     * Could be used as a tool or used individually to change the instance_id.
+     *
+     * @param int $instance_id
+     * @param array $devices
+     * @param object $conn
+     * @throws PDOException
+     */
+    public function allocateInstanceToDevice(int $instance_id, array $devices, object $conn = null): void
+    {
+        if ($conn === null) {
+            $conn = new ReDB('vendor');
+        }
+
+        $query = 'update devices set instance_id = ? where dev_id = ?';
+
+        try {
+            $conn->beginTransaction();
+
+            foreach ($devices as $device) {
+                $conn->prepare($query)->execute([$instance_id, $device]);
+            }
+
+            $conn->commit();
+        } catch (PDOException $e) {
+            $conn->rollBack();
+            $conn->errorLogWriter($e);
+        }
+
+    }
 
 
     /**
      * @param string $param space delimiter is allowed
-     * @param object $pdo an ReDB instance
+     * @param object $conn an ReDB instance
      */
-    public function createParamTable(string $param, object $pdo): void
+    public function createParamTable(string $param, object $conn = null): void
     {
+        if ($conn === null) {
+            $conn = new ReDB('vendor');
+        }
+
         $param = str_replace(' ', '_', $param);
 
         try {
             $query = 'create table ? (crt_time datetime(3) not null, value float(6,2) not null) engine=MyISAM';
-            $pdo->prepare($query)->execute([$param]);
+            $conn->prepare($query)->execute([$param]);
         } catch (PDOException $e) {
-            $pdo->errorLogWriter($e);
+            $conn->errorLogWriter($e);
         }
     }
 
 
     /**
-     * @param string $order_num
+     * Parse orders to create tables for params
      *
-     * A server instance shall be ready before this function get executed.
-     * Once the
+     * @param int $order_num
      */
-    public function instantiateOrder(string $order_num): void
+    public function parseOrders(int $order_num): void
     {
-    }
 
+    }
 }

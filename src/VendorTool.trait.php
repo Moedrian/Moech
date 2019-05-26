@@ -1,5 +1,14 @@
 <?php
 
+/**
+ * Provides tools for vendor level utility
+ *
+ * @author      <ikamitse@gmail.com>    Moedrian
+ * @copyright   2017 - 2021             Moedrian
+ * @package     Moech
+ * @since       0.1
+ * @version     0.1
+ */
 
 namespace Moech\Vendor;
 
@@ -13,12 +22,17 @@ trait VendorTool
 {
 
     /**
-     * @param string $cust_name
-     * @return mixed cust_id
+     * Gets the ID of a customer
+     *
+     * @param string $cust_name     The exact name of a customer group.
+     * @param object $conn          If given, it could reuse the pdo created before.
+     * @return int cust_id          The customer id.
      */
-    public function getCustID(string $cust_name): int
+    public function getCustID(string $cust_name, object $conn = null): int
     {
-        $conn = new ReDB('vendor');
+        if ($conn === null) {
+            $conn = new ReDB('vendor');
+        }
 
         $query = 'select cust_id from customer_info where cust_name = ?';
         $stmt = $conn->prepare($query);
@@ -29,15 +43,18 @@ trait VendorTool
 
 
     /**
-     * To get the price of a product belonging to certain category
+     * Gets the price of a product belonging to certain category
      *
-     * @param string $category
-     * @param string $item
-     * @return float
+     * @param string $category      Potential values: 'param' and 'additional services'.
+     * @param string $item          The name of a product.
+     * @param object $conn          If given, it could reuse the pdo created before.
+     * @return float $price         The price of a product.
      */
-    public function getProductPrice(string $category, string $item): float
+    public function getProductPrice(string $category, string $item, object $conn = null): float
     {
-        $conn = new ReDB('vendor');
+        if ($conn === null) {
+            $conn = new ReDB('vendor');
+        }
 
         $query = 'Empty Query';
 
@@ -53,4 +70,6 @@ trait VendorTool
 
         return $stmt->fetch(PDO::FETCH_OBJ)->price;
     }
+
+
 }

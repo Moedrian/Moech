@@ -1,5 +1,15 @@
 <?php
 
+/**
+ * Adds data into databases for further use and initialization
+ *
+ * @author      <ikamitse@gmail.com>    Moedrian
+ * @copyright   2017 - 2021             Moedrian
+ * @package     Moech
+ * @since       0.1
+ * @version     0.1
+ */
+
 
 namespace Moech\Vendor;
 
@@ -8,11 +18,9 @@ require __DIR__ . '/../vendor/autoload.php';
 // Interface to be implemented
 use Moech\Interfaces\PlatformAdd;
 
-// Classes to be used
 use Moech\Data\ReDB;
 use Moech\Deploy\DeployInstance;
 
-// PHP Extensions to be used
 use PDO;
 use PDOException;
 
@@ -22,16 +30,11 @@ class VendorAdd implements PlatformAdd
     use VendorTool;
 
     /**
+     * Adds a single row of product into the database.
+     *
      * @param string $json
-     *
-     * Add a single piece of product row into the database.
-     *
-     * The inputs are
-     * @example ../test/json_input/product_additional_services.json
-     * for alarms, graphs, etc, and
-     * @example ../test/json_input/product_param.json
-     * for params to be monitored.
-     *
+     * @example ../test/json_input/product_additional_services.json Required input type 1
+     * @example ../test/json_input/product_param.json               Required input type 2
      */
     public function addProduct(string $json): void
     {
@@ -51,7 +54,7 @@ class VendorAdd implements PlatformAdd
     }
 
     /**
-     * Add a row for a new instance
+     * Adds a row of a new instance
      *
      * @return mixed $instance_id
      */
@@ -71,15 +74,11 @@ class VendorAdd implements PlatformAdd
     }
 
     /**
-     * @param string $json
-     *
-     * The input is
-     * @example ../test/json_input/customer_reg.json
-     *
      * This shall be the first step of the customer initialization
-     * Next,
-     * @see VendorAdd::addCustomerInfo()
      *
+     * @param string $json
+     * @see ../test/json_input/customer_reg.json    Required input
+     * @see VendorAdd::addCustomerInfo()            Next step
      */
     public function addCustomerSignUp(string $json): void
     {
@@ -109,20 +108,11 @@ class VendorAdd implements PlatformAdd
 
 
     /**
+     * Adds detailed information of a customer
+     *
      * @param string $json
-     *
-     * Check the input in
-     * @example ../test/json_input/customer_info.json
-     *
-     * After
-     * @see VendorAdd::addCustomerSignUp()
-     * This method is for adding detailed information of a customer
-     *
-     * Once the information is completed,
-     *
-     * Next,
-     * @see VendorAdd::addDevice()
-     *
+     * @see ../test/json_input/customer_info.json   Required input
+     * @see VendorAdd::addDevice()                  Next step
      */
     public function addCustomerInfo(string $json): void
     {
@@ -138,26 +128,19 @@ class VendorAdd implements PlatformAdd
 
 
     /**
+     * Adds device for a customer signed up before
+     *
      * @param string $json
-     *
-     * The input is
-     * @example ../test/json_input/device.json
-     *
-     * After
-     * @see Vendor::addCustomerInfo()
-     *
-     * add device for a customer signed up before
-     *
-     * Next,
-     * @see Vendor::addDeviceParamInfo()
+     * @see ../test/json_input/device.json  Required input
+     * @see Vendor::addDeviceParamInfo()    Next step
      */
     public function addDevice(string $json): void
     {
         $dev_arr = json_decode($json, true);
 
-        $cust_id = $this->getCustID($dev_arr['cust_name']);
-
         $conn = new ReDB('vendor');
+
+        $cust_id = $this->getCustID($dev_arr['cust_name'], $conn);
 
         try {
             $conn->beginTransaction();
@@ -178,22 +161,11 @@ class VendorAdd implements PlatformAdd
 
 
     /**
+     * Adds params need to be monitored for device(s)
+     *
      * @param string $json
-     *
-     * @uses RDB::dataLink()
-     *
-     * The input is
-     * @example ../test/json_input/param_info.json
-     *
-     * After
-     * @see Vendor::addDevice()
-     *
-     * add params need to be monitored for device(s)
-     * if the values are not given, they will be set to (float) 0
-     *
-     * Next, if the customer want to buy some service,
-     * @see Vendor::addOrder()
-     *
+     * @see ../test/json_input/param_info.json  Required input
+     * @see Vendor::addOrder()                  Next step
      */
     public function addDeviceParamInfo(string $json): void
     {
@@ -222,25 +194,24 @@ class VendorAdd implements PlatformAdd
 
 
     /**
+     * Adds order record and order items
+     *
      * @param string $json
-     *
-     * After
-     * @see Vendor::addDeviceParamInfo()
-     *
+     * @see ../test/json_input/order.json   Required input
+     * @see VendorMan                       Further management
      * @todo bind orders to params added before
-     *
-     * @todo what about the payment system
+     * @todo the payment system
      */
     public function addOrder(string $json): void
     {
         $orders = json_decode($json, true);
         $cust_name = $orders['cust_name'];
-        $cust_id = $this->getCustID($cust_name);
 
         date_default_timezone_set('Asia/Shanghai');
         $order_date = date('Y-m-d');
 
         $conn = new ReDB('vendor');
+        $cust_id = $this->getCustID($cust_name, $conn);
 
         try {
             $conn->beginTransaction();
@@ -251,16 +222,14 @@ class VendorAdd implements PlatformAdd
 
             $order_num = $conn->lastInsertId();
 
-
             // Then, add records to `vendor.order_items`
             foreach ($orders['orders'] as $pk => $pv) {
-                $price = $this->getProductPrice($pv['category'], $pv['item']);
+                $price = $this->getProductPrice($pv['category'], $pv['item'], $conn);
 
                 $query = 'insert into order_items(seq_id, dev_id, order_num, category, item, param, quantity, price) VALUES (null, ?, ?, ?, ?, ?, ?, ?)';
                 $stmt = $conn->prepare($query);
                 $stmt->execute([$pv['dev_id'], $order_num, $pv['category'], $pv['item'], $pv['param'], $pv['quantity'], $price]);
             }
-
 
             $conn->commit();
 

@@ -3,10 +3,12 @@
 /**
  * A class for data modification, that is, management
  *
- * @author Moedrian
- * @package Moech\Vendor\VendorMan
- * @copyright 2017 - 2021 Moedrian
- * @license Apache-2.0
+ * @author      <ikamitse@gmail.com>    Moedrian
+ * @copyright   2017 - 2021             Moedrian
+ * @package     Moech
+ * @license     Apache-2.0
+ * @since       0.1
+ * @version     0.1
  */
 
 namespace Moech\Vendor;
@@ -31,10 +33,9 @@ class VendorMan implements PlatformMan
      * USE AFTER INSTANCE CREATION
      *
      * @param int $instance_id
-     * @param string $status
-     *              'deploy' - the web app installation is completed
-     *              'config' - the instance is ready to go
-     *              'load'   - the instance could no longer be allocated
+     * @param string $status    'deploy' - the web app installation is completed
+     *                          'config' - the instance is ready to go
+     *                          'load'   - the instance could no longer be allocated
      * @throws PDOException
      */
     public function setInstanceStatus(int $instance_id, string $status): void
@@ -124,7 +125,7 @@ class VendorMan implements PlatformMan
      *
      * @param int $instance_id
      * @param array $devices
-     * @param object $conn
+     * @param object|null $conn
      * @throws PDOException
      */
     public function allocateInstanceToDevice(int $instance_id, array $devices, object $conn = null): void
@@ -152,20 +153,18 @@ class VendorMan implements PlatformMan
 
 
     /**
+     * Create parameter tables for a device
+     *
      * @param string $param space delimiter is allowed
-     * @param object $conn an ReDB instance
+     * @param object $conn a 'customer' ReDB instance
      */
-    public function createParamTable(string $param, object $conn = null): void
+    public function createParamTable(string $param, object $conn): void
     {
-        if ($conn === null) {
-            $conn = new ReDB('vendor');
-        }
-
         $param = str_replace(' ', '_', $param);
 
         try {
-            $query = 'create table ? (crt_time datetime(3) not null, value float(6,2) not null) engine=MyISAM';
-            $conn->prepare($query)->execute([$param]);
+            $query = 'create table '. $param .' (crt_time datetime(3) not null, value float(6,2) not null) engine=MyISAM';
+            $conn->prepare($query)->execute();
         } catch (PDOException $e) {
             $conn->errorLogWriter($e);
         }
@@ -173,12 +172,65 @@ class VendorMan implements PlatformMan
 
 
     /**
-     * Parse orders to create tables for params
+     * Parse orders to create tables for params in correspond device database
      *
      * @param int $order_num
+     * @todo test needed
      */
-    public function parseOrders(int $order_num): void
+    public function parseOrder(int $order_num): void
     {
+        $conn = new ReDB('vendor');
 
+        // Get cust_id from order --->
+        $query = 'select cust_id from orders where order_num = ?';
+        $stmt = $conn->prepare($query);
+        $stmt->execute([$order_num]);
+
+        $cust_id = $stmt->fetch(PDO::FETCH_OBJ)->cust_id;
+        // <--- cust_id
+
+        // Get instance that is ready to use --->
+        $query = 'select instance_id from instances where cust_id = ? and dep_status = 1 and cfg_status = 1 and load_status = 0';
+        $stmt = $conn->prepare($query);
+        $stmt->execute([$cust_id]);
+
+        $instance_id = $stmt->fetch(PDO::FETCH_OBJ)->instance_id;
+        // <--- available instance id
+
+        $items = $this->getOrderItems($order_num, $conn);
+
+        $devices = array();
+        $table_list = array();
+
+        foreach ($items as $item) {
+            $devices[] = $item['dev_id'];
+            // Get a device-param(s) array
+            $table_list[$item['dev_id']][] = $item['param'];
+        }
+
+        // Get a unique list of devices
+        $devices = array_unique($devices);
+
+        // Create databases for devices
+        $cust_conn = new ReDB('customer', $instance_id);
+        foreach ($devices as $device) {
+
+            // Update device instance information
+            if ($this->getDeviceInstance($device, $conn)) {
+                $this->allocateInstanceToDevice($instance_id, [$device]);
+            }
+
+            // Create device databases
+            if ($cust_conn->DBExistence($device)) {
+                $cust_conn->createDatabase($device);
+            }
+
+            // Create parameter tables in device database
+            $cust_conn->exec('use ' . $device);
+            foreach ($table_list[$device] as $param) {
+                $this->createParamTable($param, $cust_conn);
+            }
+        }
     }
+
 }

@@ -25,7 +25,7 @@ trait VendorTool
      * Gets the ID of a customer
      *
      * @param string $cust_name     The exact name of a customer group.
-     * @param object $conn          If given, it could reuse the pdo created before.
+     * @param object|null $conn          If given, it could reuse the pdo created before.
      * @return int cust_id          The customer id.
      */
     public function getCustID(string $cust_name, object $conn = null): int
@@ -47,7 +47,7 @@ trait VendorTool
      *
      * @param string $category      Potential values: 'param' and 'additional services'.
      * @param string $item          The name of a product.
-     * @param object $conn          If given, it could reuse the pdo created before.
+     * @param object|null $conn     If given, it could reuse the pdo created before.
      * @return float $price         The price of a product.
      */
     public function getProductPrice(string $category, string $item, object $conn = null): float
@@ -71,5 +71,25 @@ trait VendorTool
         return $stmt->fetch(PDO::FETCH_OBJ)->price;
     }
 
+
+    /**
+     * Gets item list in an order
+     *
+     * @param int $order_num
+     * @param object|null $conn
+     * @return array|null
+     */
+    public function getOrderItems(int $order_num, object $conn = null): ?array
+    {
+        if ($conn === null) {
+            $conn = new ReDB('vendor');
+        }
+
+        $query = 'select * from order_items where order_num = ?';
+        $stmt = $conn->prepare($query);
+        $stmt->execute([$order_num]);
+
+        return $stmt->fetchAll(PDO::FETCH_ASSOC);
+    }
 
 }

@@ -22,8 +22,8 @@ CREATE TABLE customer_sign_up (
 CREATE TABLE customer_info (
     cust_id int NOT NULL AUTO_INCREMENT,
     cust_name char(50) NOT NULL,
-    cust_contact char(50) NOT NULL,
-    cust_tel char(15) NOT NULL,
+    cust_contact char(50) DEFAULT NULL,
+    cust_tel char(15) DEFAULT NULL,
     cust_mail char(50) NULL,
     PRIMARY KEY (cust_id)
 ) ENGINE = InnoDB;
@@ -93,7 +93,7 @@ INSERT INTO order_items (seq_id, dev_id, order_num, category, item, param, quant
 -- And when the server instance is overload,
 -- the load_status will be set to 1
 CREATE TABLE instances (
-    instance_id int NOT NULL,
+    instance_id int NOT NULL AUTO_INCREMENT,
     cust_id int DEFAULT NULL,
     cust_name char(50) DEFAULT NULL,
     dep_status tinyint NOT NULL DEFAULT 0,

@@ -6,8 +6,10 @@
  * @author      <ikamitse@gmail.com>    Moedrian
  * @copyright   2017 - 2021             Moedrian
  * @package     Moech
+ * @license     Apache-2.0
  * @since       0.1
  * @version     0.1
+ * @example     ../test/simple_sequence_test/VendorAdd.full.php
  */
 
 
@@ -15,13 +17,12 @@ namespace Moech\Vendor;
 
 require __DIR__ . '/../vendor/autoload.php';
 
-// Interface to be implemented
-use Moech\Interfaces\PlatformAdd;
+
+use Moech\Interfaces\PlatformAdd; // Interface to be implemented
 
 use Moech\Data\ReDB;
 use Moech\Deploy\DeployInstance;
 
-use PDO;
 use PDOException;
 
 class VendorAdd implements PlatformAdd
@@ -54,9 +55,9 @@ class VendorAdd implements PlatformAdd
     }
 
     /**
-     * Adds a row of a new instance
+     * Adds a row of new instance
      *
-     * @return mixed $instance_id
+     * @return int $instance_id
      */
     public function addInstance(): int
     {
@@ -77,14 +78,14 @@ class VendorAdd implements PlatformAdd
      * This shall be the first step of the customer initialization
      *
      * @param string $json
-     * @see ../test/json_input/customer_reg.json    Required input
-     * @see VendorAdd::addCustomerInfo()            Next step
+     * @see ../test/json_input/customer_sign_up.json    Required input
+     * @see VendorAdd::addCustomerInfo()                Next step
      */
     public function addCustomerSignUp(string $json): void
     {
         $conn = new ReDB('vendor');
 
-        $reg_info_array = json_decode($json, true);
+        $sign_up_info = json_decode($json, true);
 
         // @todo Encryption of password
 
@@ -92,11 +93,11 @@ class VendorAdd implements PlatformAdd
             $conn->beginTransaction();
             // Insert registration to table `customer_reg`
             $query = 'insert into customer_sign_up(username, user_mail, password, cust_name) VALUES (?, ?, ?, ?)';
-            $conn->prepare($query)->execute(array_values($reg_info_array['registration']));
+            $conn->prepare($query)->execute(array_values($sign_up_info['sign_up']));
 
             // Next, insert customer name into `customer_info`
             $query = 'insert into customer_info(cust_id, cust_name) values (null, ?)';
-            $conn->prepare($query)->execute([$reg_info_array['registration']['cust_name']]);
+            $conn->prepare($query)->execute([$sign_up_info['sign_up']['cust_name']]);
 
             $conn->commit();
         } catch (PDOException $e) {

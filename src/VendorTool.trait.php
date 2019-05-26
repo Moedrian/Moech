@@ -92,4 +92,27 @@ trait VendorTool
         return $stmt->fetchAll(PDO::FETCH_ASSOC);
     }
 
+
+    /**
+     * Get the instance_id of a device
+     *
+     * If null, then call VendorMan::allocateInstanceToDevice()
+     *
+     * @param string $dev_id
+     * @param object|null $conn
+     * @return int|null
+     */
+    public function getDeviceInstance(string $dev_id, object $conn = null): ?int
+    {
+        if ($conn === null) {
+            $conn = new ReDB('vendor');
+        }
+
+        $query = 'select instance_id from devices where dev_id = ?';
+        $stmt = $conn->prepare($query);
+        $stmt->execute([$dev_id]);
+
+        return $stmt->fetch(PDO::FETCH_OBJ)->instance_id;
+    }
+
 }

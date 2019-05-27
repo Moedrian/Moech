@@ -4,37 +4,38 @@
 namespace Moech\Interfaces;
 
 
+/**
+ * No database operation allowed here
+ */
 interface DeployBackend
 {
-    // THERE ISN'T ANY DATABASE OPERATION IN THIS CLASS
 
     /**
-     * @param int $instance_id
+     * Creates directories for a new instance
      *
-     * To create directories for a new instance
+     * @param int $instance_id
      */
     public function generateDir(int $instance_id);
 
-
     /**
+     * Generates the config files for a new instance, Platform or DeviceManufacturer
+     *
      * @param int $instance_id the name of configuration file to be created
      * @param string $json information to be placed into the configuration
-     *
-     * To generate the config files for a new instance, Platform or DeviceManufacturer
      */
     public function generateConfigFile(int $instance_id, string $json);
 
     /**
-     * @param string $sql_path
+     * Creates Relative Databases instance
      *
-     * To create Relative Databases instance
+     * @param string $sql_path
      */
-    public function initializeDatabase(string $sql_path);
+    public function initReDB(string $sql_path);
 
     /**
-     * @param string $config_path
+     * Creates Cache configurations
      *
-     * To create Cache configurations
+     * @param string $config_path
      */
-    public function initializeCache(string $config_path);
+    public function initNoDB(string $config_path);
 }

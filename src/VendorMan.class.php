@@ -29,7 +29,7 @@ class VendorMan implements PlatformMan
     // Traits to be used
     use VendorTool;
 
-    
+
     /**
      * USE AFTER INSTANCE CREATION
      *
@@ -132,11 +132,11 @@ class VendorMan implements PlatformMan
      */
     public function parseOrder(int $order_num): void
     {
-        $conn = new ReDB('vendor');
+        $vendor_conn = new ReDB('vendor');
 
         // Get cust_id from order --->
         $query = 'select cust_id from orders where order_num = ?';
-        $stmt = $conn->prepare($query);
+        $stmt = $vendor_conn->prepare($query);
         $stmt->execute([$order_num]);
 
         // Integer type expected
@@ -145,14 +145,14 @@ class VendorMan implements PlatformMan
 
         // Get instance that is ready to use --->
         $query = 'select instance_id from instances where cust_id = ? and dep_status = 1 and cfg_status = 1 and load_status = 0';
-        $stmt = $conn->prepare($query);
+        $stmt = $vendor_conn->prepare($query);
         $stmt->execute([$cust_id]);
 
         // Integer type expected
         $instance_id = (int)$stmt->fetch(PDO::FETCH_OBJ)->instance_id;
         // <--- available instance id
 
-        $items = $this->getOrderItems($order_num, $conn);
+        $items = $this->getOrderItems($order_num, $vendor_conn);
 
         $devices = array();
         $table_list = array();
@@ -176,7 +176,7 @@ class VendorMan implements PlatformMan
             foreach ($devices as $device) {
 
                 // Update device instance information
-                if (!$this->getDeviceInstance($device, $conn)) {
+                if (!$this->getDeviceInstance($device, $vendor_conn)) {
                     $this->allocateInstanceToDevice($instance_id, [$device]);
                 }
 
@@ -188,7 +188,7 @@ class VendorMan implements PlatformMan
                 // Create parameter tables in device database
                 $cust_conn->exec('use ' . $device);
                 foreach ($table_list[$device] as $param) {
-                    $this->createParamTable($param, $cust_conn);
+                    $this->createParamTable($param, $device, $cust_conn, $vendor_conn);
                 }
             }
 
@@ -232,25 +232,30 @@ class VendorMan implements PlatformMan
             $conn->rollBack();
             $conn->errorLogWriter($e);
         }
-
     }
 
 
     /**
      * Create parameter tables for a device
      *
-     * @param string $param     space delimiter is allowed
-     * @param object $conn      a 'customer' ReDB instance
+     * @param string $param         space delimiter is allowed
+     * @param string $dev_id        device id
+     * @param object $cust_conn     a 'customer' ReDB instance
+     * @param object $vendor_conn   a 'vendor' ReDB instance
      */
-    public function createParamTable(string $param, object $conn): void
+    public function createParamTable(string $param, string $dev_id, object $cust_conn, object $vendor_conn): void
     {
         $param = str_replace(' ', '_', $param);
 
+        $query = 'create table '. $param .' (crt_time datetime(3) not null, value float(6,2) not null) engine=MyISAM';
+        $cust_conn->prepare($query)->execute();
+
         try {
-            $query = 'create table '. $param .' (crt_time datetime(3) not null, value float(6,2) not null) engine=MyISAM';
-            $conn->prepare($query)->execute();
+            // Update vendor management info
+            $update = 'update order_items set table_status = 1 where param = ? and dev_id = ?';
+            $vendor_conn->prepare($update)->execute([$param, $dev_id]);
         } catch (PDOException $e) {
-            $conn->errorLogWriter($e);
+            $vendor_conn->errorLogWriter($e);
         }
     }
 

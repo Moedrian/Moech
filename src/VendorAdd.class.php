@@ -30,6 +30,7 @@ class VendorAdd implements PlatformAdd
     // Traits to be used
     use VendorTool;
 
+
     /**
      * Adds a single row of product into the database.
      *
@@ -54,6 +55,7 @@ class VendorAdd implements PlatformAdd
         $conn->prepare($query)->execute(array_values($info['product']));
     }
 
+
     /**
      * Adds a row of new instance
      *
@@ -74,6 +76,48 @@ class VendorAdd implements PlatformAdd
         return $instance_id;
     }
 
+
+    /**
+     * Add a new user
+     *
+     * @param string $json
+     * @see ../test/json_input/vendor_user_add.json
+     */
+    public function addUser(string $json): void
+    {
+        $conn = new ReDB('vendor');
+
+        $add = json_decode($json, true)['user'];
+
+        $password = password_hash($add['password'], PASSWORD_BCRYPT);
+
+        $query = 'insert into users(username, email, password) VALUES (?, ?, ?)';
+
+        $conn->prepare($query)->execute([$add['username'], $add['email'], $password]);
+
+    }
+
+
+    /**
+     * Updates user info after inserting
+     *
+     * @param string $json
+     * @see ../test/json_input/vendor_user_info.json
+     * @todo a password confirmation call
+     */
+    public function addUserInfo(string $json): void
+    {
+        $conn = new ReDB('vendor');
+
+        $info = json_decode($json, true)['user'];
+
+        $query = 'update users set alias = ?, email = ?, tel =? where username = ?';
+
+        $conn->prepare($query)->execute([$info['alias'], $info['email'], $info['tel'], $info['username']]);
+
+    }
+
+
     /**
      * This shall be the first step of the customer initialization
      *
@@ -85,19 +129,19 @@ class VendorAdd implements PlatformAdd
     {
         $conn = new ReDB('vendor');
 
-        $sign_up_info = json_decode($json, true);
+        $info = json_decode($json, true);
 
-        // @todo Encryption of password
+        $password = password_hash($info['password'], PASSWORD_BCRYPT);
 
         try {
             $conn->beginTransaction();
             // Insert registration to table `customer_reg`
             $query = 'insert into customer_sign_up(username, user_mail, password, cust_name) VALUES (?, ?, ?, ?)';
-            $conn->prepare($query)->execute(array_values($sign_up_info['sign_up']));
+            $conn->prepare($query)->execute([$info['username'], $info['user_mail'], $password, $info['cust_name']]);
 
             // Next, insert customer name into `customer_info`
             $query = 'insert into customer_info(cust_id, cust_name) values (null, ?)';
-            $conn->prepare($query)->execute([$sign_up_info['sign_up']['cust_name']]);
+            $conn->prepare($query)->execute([$info['sign_up']['cust_name']]);
 
             $conn->commit();
         } catch (PDOException $e) {
@@ -125,7 +169,6 @@ class VendorAdd implements PlatformAdd
 
         $conn->prepare($query)->execute([$info['cust_contact'], $info['cust_tel'], $info['cust_mail'], $info['cust_name']]);
     }
-
 
 
     /**

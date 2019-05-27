@@ -5,6 +5,15 @@ CREATE DATABASE IF NOT EXISTS vendor DEFAULT CHARACTER SET utf8mb4 COLLATE utf8m
 
 USE vendor;
 
+CREATE TABLE users(
+    username char(50) NOT NULL,
+    alias char(50) DEFAULT NULL,
+    email varchar(50) DEFAULT NULL,
+    tel char(15) DEFAULT NULL,
+    password varchar(60) NOT NULL,
+    PRIMARY KEY (username)
+) ENGINE = InnoDB;
+
 -- To store sign-up information.
 -- The very first table during orders' creating procedure.
 CREATE TABLE customer_sign_up (

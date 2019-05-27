@@ -3,11 +3,11 @@
         "DB": "CUSTOMER_CERTAIN_MACHINE"
     },
     "network": {
-        "HOST": "xxx.xxx.xxx.xxx"
+        "HOST": "192.168.137.102"
     },
     "database": {
-        "ReDB_NAME": "MySQL",
-        "ReDB_USER": "SomeUser",
-        "ReDB_PASSWD": "A Strong Password"
+        "ReDB_TYPE": "mysql",
+        "ReDB_USER": "Popko",
+        "ReDB_PASSWD": "popteamepic893"
     }
 }

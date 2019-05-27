@@ -6,51 +6,63 @@ interface PlatformAdd
 {
 
     /**
+     * Adds a new product into database
+     *
      * @param string $json
-     *
-     * One of those basic functions for a Platform.
-     *
      */
     public function addProduct(string $json);
 
     /**
+     * Adds a new instance record
+     */
+    public function addInstance();
+
+    /**
+     * Adds users for platform management
+     *
      * @param string $json
+     */
+    public function addUser(string $json);
+
+    /**
+     * Updates user info after inserting
      *
-     * The first thing a new user would do.
+     * @param string $json
+     */
+    public function addUserInfo(string $json);
+
+    /**
+     * Adds sign-up info to database
      *
+     * @param string $json
      */
     public function addCustomerSignUp(string $json);
 
     /**
+     * Adds detailed info for the signing-up before
+     *
      * @param string $json
-     *
-     * Then that user shall be prompted to add some essential information
-     * about the company
-     *
      */
     public function addCustomerInfo(string $json);
 
     /**
+     * Adds devices that company desires to monitor
+     *
      * @param string $json
-     *
-     * Time to add devices that company desires to monitor
-     *
      */
     public function addDevice(string $json);
 
     /**
+     * Adds device parameters' information for generating orders
+     *
      * @param string $json
-     *
-     * Next, add device parameters' information for generating orders
-     *
      */
     public function addDeviceParamInfo(string $json);
 
     /**
+     * Adds params to cart and now the Platform have the orders
+     *
      * @param string $json
-     *
-     * Add the params to cart and now the Platform have the orders
-     *
      */
     public function addOrder(string $json);
 

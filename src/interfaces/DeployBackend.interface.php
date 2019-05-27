@@ -26,6 +26,13 @@ interface DeployBackend
     public function generateConfigFile(int $instance_id, string $json);
 
     /**
+     * Copy files to the instance directory
+     *
+     * @param int $instance_id
+     */
+    public function copySrc(int $instance_id);
+
+    /**
      * Creates Relative Databases instance
      *
      * @param string $sql_path

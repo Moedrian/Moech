@@ -25,7 +25,7 @@ trait VendorTool
      * Gets the ID of a customer
      *
      * @param string $cust_name     The exact name of a customer group.
-     * @param object|null $conn          If given, it could reuse the pdo created before.
+     * @param object|null $conn     If given, it could reuse the pdo created before.
      * @return int cust_id          The customer id.
      */
     public function getCustID(string $cust_name, object $conn = null): int

@@ -81,7 +81,7 @@ class VendorMan implements PlatformMan
 
         $cust_conn = new ReDB('customer', $instance_id);
 
-        $customer_init_sql = file_get_contents(__DIR__ . '/../init/customer.sql');
+        $customer_init_sql = file_get_contents(__DIR__ . '/../deploy/init/customer.sql');
 
         try {
             // Create basic databases for customer side management

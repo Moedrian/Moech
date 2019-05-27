@@ -13,7 +13,9 @@ class ReDB extends PDO
      * To instantiate pdo in vendor database directly
      * or modify the default value to connect to a customer's instance
      *
-     * @param string $type
+     * @param string $type      'vendor'    - vendor common task utility
+     *                          'customer'  - vendor deployment utility
+     *                          'localhost' - customer common task utility
      * @param int $instance_id
      * @param string $db_name
      * @see DeployInstance::generateConfigFile() for more details
@@ -24,18 +26,27 @@ class ReDB extends PDO
         $ini = array('Empty config parsing result');
 
         if ($type === 'vendor') {
-            // For vendor common utility
-            $ini = parse_ini_file(__DIR__ . '/../config/vendor.ini');
+
+            $filename = __DIR__ . '/../config/vendor.ini';
+            chmod($filename, 0755);
+            $ini = parse_ini_file($filename);
             $dsn = $ini['ReDB_TYPE'] . ':host=' . $ini['HOST'] . ';dbname=' . $ini['VENDOR_DB'];
+
         } elseif ($type === 'customer') {
-            // For vendor deployment utility before deployment
-            // Note here the dbname is not assigned
-            $ini = parse_ini_file(__DIR__ . '/../deploy/instance_' . $instance_id . '/config/');
+
+            // Note here the dbname is not specified
+            $filename = __DIR__ . '/../deploy/instance_' . $instance_id . '/config/' . $instance_id . '.ini';
+            chmod($filename, 0755);
+            $ini = parse_ini_file($filename);
             $dsn = $ini['ReDB_TYPE'] . ':host=' . $ini['HOST'];
+
         } elseif ($type === 'localhost') {
-            // For customer common utility after deployment
-            $ini = parse_ini_file(__DIR__. '/../config/config.ini');
+
+            $filename = __DIR__. '/../config/' . $instance_id . '.ini';
+            chmod($filename, 0755);
+            $ini = parse_ini_file($filename);
             $dsn = $ini['ReDB_TYPE'] . ':host=' . $ini['HOST'] . ';dbname=' . $db_name;
+
         }
 
         try {
@@ -46,7 +57,7 @@ class ReDB extends PDO
     }
 
     /**
-     * To write error logs in database
+     * Writes error logs in database
      *
      * @param object $PDOException a PDOException instance
      * @param string $path_to_log
@@ -55,13 +66,13 @@ class ReDB extends PDO
     {
         chmod($path_to_log, 0755);
         $fp = fopen($path_to_log, 'a+b');
-        fwrite($fp, date('Y-m-d H:i:s') . ': ' . $PDOException->getMessage() . '\n');
-        fwrite($fp, 'Error found in ' . __FILE__ . ' in ' . __LINE__ . '\n\n');
+        fwrite($fp, date('Y-m-d H:i:s') . ': ' . $PDOException->getMessage() . "\n");
+        fwrite($fp, 'Error found in ' . __FILE__ . ' in ' . __LINE__ . "\n\n");
         fclose($fp);
     }
 
     /**
-     * To check if a database exists in certain customer's instance
+     * Checks if a database exists in certain customer's instance
      *
      * @param string $database
      * @return bool

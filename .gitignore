@@ -17,7 +17,7 @@ test/basic/
 config/vendor.ini
 
 # ignore deploy files
-deploy/
+deploy/instance*/
 
 #ignore log files
 log/

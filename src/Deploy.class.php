@@ -15,9 +15,7 @@ namespace Moech\Deploy;
 
 require __DIR__ . '/../vendor/autoload.php';
 
-
-// Interface to be implemented
-use Moech\Interfaces\DeployBackend;
+use Moech\Interfaces\DeployInstanceInterface;
 
 use Moech\Vendor\VendorMan;
 use Zend\Config\Config;
@@ -26,7 +24,7 @@ use Zend\Config\Writer\Ini;
 /**
  * @used-by VendorMan
  */
-class DeployInstance implements DeployBackend
+class DeployInstance implements DeployInstanceInterface
 {
 
     /**
@@ -44,7 +42,7 @@ class DeployInstance implements DeployBackend
         }
 
         // Create directories to place codes, etc.
-        $dir_array = ['src', 'html', 'config', 'log', 'assets', 'api'];
+        $dir_array = ['src', 'src/interfaces', 'html', 'config', 'log', 'assets', 'api'];
         foreach ($dir_array as $item) {
             if(!mkdir($pathname.'/'.$item, 0755, true) && !is_dir($pathname.'/'.$item)) {
                 die('Failed to create folders');
@@ -53,6 +51,12 @@ class DeployInstance implements DeployBackend
 
         // Copy composer.json there, after uploaded, `composer install` shall be executed
         copy(__DIR__ . '/../composer.json', $pathname . '/composer.json');
+    }
+
+
+    public function copySrc(int $instance_id): void
+    {
+
     }
 
 

@@ -7,7 +7,7 @@ namespace Moech\Interfaces;
 /**
  * No database operation allowed here
  */
-interface DeployBackend
+interface DeployInstanceInterface
 {
 
     /**

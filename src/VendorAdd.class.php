@@ -18,14 +18,14 @@ namespace Moech\Vendor;
 require __DIR__ . '/../vendor/autoload.php';
 
 
-use Moech\Interfaces\PlatformAdd; // Interface to be implemented
+use Moech\Interfaces\VendorAddInterface;
 
 use Moech\Data\ReDB;
-use Moech\Deploy\DeployInstance;
+use Moech\Deploy\Deploy;
 
 use PDOException;
 
-class VendorAdd implements PlatformAdd
+class VendorAdd implements VendorAddInterface
 {
     // Traits to be used
     use VendorTool;
@@ -34,15 +34,13 @@ class VendorAdd implements PlatformAdd
     /**
      * Adds a single row of product into the database.
      *
-     * @param string $json
+     * @param array $info
      * @example ../test/json_input/product_additional_services.json Required input type 1
      * @example ../test/json_input/product_param.json               Required input type 2
      */
-    public function addProduct(string $json): void
+    public function addProduct(array $info): void
     {
         $conn = new ReDB('vendor');
-
-        $info = json_decode($json, true);
 
         $query = '';
         // Generate different queries according to 'type' value
@@ -58,10 +56,8 @@ class VendorAdd implements PlatformAdd
 
     /**
      * Adds a row of new instance
-     *
-     * @return int $instance_id
      */
-    public function addInstance(): int
+    public function addInstance(): void
     {
         $conn = new ReDB('vendor');
 
@@ -70,24 +66,22 @@ class VendorAdd implements PlatformAdd
         $instance_id = $conn->lastInsertId();
 
         // Initialize directories here
-        $dep = new DeployInstance();
+        $dep = new Deploy();
         $dep->generateDir($instance_id);
-
-        return $instance_id;
     }
 
 
     /**
      * Add a new user
      *
-     * @param string $json
+     * @param array $json
      * @see ../test/json_input/vendor_user_add.json
      */
-    public function addUser(string $json): void
+    public function addUser(array $json): void
     {
         $conn = new ReDB('vendor');
 
-        $add = json_decode($json, true)['user'];
+        $add = $json['user'];
 
         $password = password_hash($add['password'], PASSWORD_BCRYPT);
 
@@ -101,15 +95,15 @@ class VendorAdd implements PlatformAdd
     /**
      * Updates user info after inserting
      *
-     * @param string $json
+     * @param array $json
      * @see ../test/json_input/vendor_user_info.json
      * @todo a password confirmation call
      */
-    public function addUserInfo(string $json): void
+    public function addUserInfo(array $json): void
     {
         $conn = new ReDB('vendor');
 
-        $info = json_decode($json, true)['user'];
+        $info = $json['user'];
 
         $query = 'update users set alias = ?, email = ?, tel =? where username = ?';
 
@@ -121,15 +115,13 @@ class VendorAdd implements PlatformAdd
     /**
      * This shall be the first step of the customer initialization
      *
-     * @param string $json
+     * @param array $info
      * @see ../test/json_input/customer_sign_up.json    Required input
      * @see VendorAdd::addCustomerInfo()                Next step
      */
-    public function addCustomerSignUp(string $json): void
+    public function addCustomer(array $info): void
     {
         $conn = new ReDB('vendor');
-
-        $info = json_decode($json, true);
 
         $password = password_hash($info['password'], PASSWORD_BCRYPT);
 
@@ -155,15 +147,15 @@ class VendorAdd implements PlatformAdd
     /**
      * Adds detailed information of a customer
      *
-     * @param string $json
+     * @param array $info
      * @see ../test/json_input/customer_info.json   Required input
      * @see VendorAdd::addDevice()                  Next step
      */
-    public function addCustomerInfo(string $json): void
+    public function addCustomerInfo(array $info): void
     {
         $conn = new ReDB('vendor');
 
-        $info = json_decode($json, true)['customer'];
+        $info = $info['customer'];
 
         $query = 'update customer_info set cust_contact=?, cust_tel=?, cust_mail=? where cust_name=?';
 
@@ -174,13 +166,12 @@ class VendorAdd implements PlatformAdd
     /**
      * Adds device for a customer signed up before
      *
-     * @param string $json
+     * @param array $dev_arr
      * @see ../test/json_input/device.json  Required input
      * @see Vendor::addDeviceParamInfo()    Next step
      */
-    public function addDevice(string $json): void
+    public function addDevice(array $dev_arr): void
     {
-        $dev_arr = json_decode($json, true);
 
         $conn = new ReDB('vendor');
 
@@ -207,15 +198,13 @@ class VendorAdd implements PlatformAdd
     /**
      * Adds params need to be monitored for device(s)
      *
-     * @param string $json
+     * @param array $param_info
      * @see ../test/json_input/param_info.json  Required input
      * @see Vendor::addOrder()                  Next step
      */
-    public function addDeviceParamInfo(string $json): void
+    public function addDeviceParamInfo(array $param_info): void
     {
         $conn = new ReDB('vendor');
-
-        $param_info = json_decode($json, true);
 
         try {
             $conn->beginTransaction();
@@ -240,15 +229,14 @@ class VendorAdd implements PlatformAdd
     /**
      * Adds order record and order items
      *
-     * @param string $json
+     * @param array $orders
      * @see ../test/json_input/order.json   Required input
      * @see VendorMan                       Further management
      * @todo bind orders to params added before
      * @todo the payment system
      */
-    public function addOrder(string $json): void
+    public function addOrder(array $orders): void
     {
-        $orders = json_decode($json, true);
         $cust_name = $orders['cust_name'];
 
         date_default_timezone_set('Asia/Shanghai');

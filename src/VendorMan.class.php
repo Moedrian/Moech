@@ -15,16 +15,15 @@ namespace Moech\Vendor;
 
 require __DIR__ . '/../vendor/autoload.php';
 
-use Moech\Interfaces\PlatformMan;
-
+use Moech\Interfaces\VendorManInterface;
 use Moech\Data\ReDB;
-use Moech\Deploy\DeployInstance;
+use Moech\Deploy\Deploy;
 
 use PDO;
 use PDOException;
 
 
-class VendorMan implements PlatformMan
+class VendorMan implements VendorManInterface
 {
     // Traits to be used
     use VendorTool;
@@ -73,7 +72,7 @@ class VendorMan implements PlatformMan
      */
     public function addInstanceConfig(int $instance_id, string $json): void
     {
-        $dep = new DeployInstance();
+        $dep = new Deploy();
 
         $dep->generateDir($instance_id);
 

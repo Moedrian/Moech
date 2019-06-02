@@ -6,7 +6,7 @@ use Moech\Vendor\VendorMan;
 
 $man =  new VendorMan();
 
-$man->addInstanceConfig(30001, file_get_contents(__DIR__ . '/../json_input/config.json'));
+$man->addInstanceConfig(30001, file_get_contents(__DIR__ . '/../example.json.d/vendor_side/config.json'));
 
 $man->setInstanceStatus(30001, 'deploy');
 

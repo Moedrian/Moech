@@ -6,14 +6,12 @@ use Moech\Vendor\VendorAdd;
 
 $ven = new VendorAdd();
 
-$ven->addCustomerSignUp(file_get_contents(__DIR__ . '/../json_input/customer_sign_up.json'));
+$ven->addCustomer(file_get_contents(__DIR__ . '/../example.json.d/vendor_side/customer_sign_up.json'));
 
-$ven->addCustomerInfo(file_get_contents(__DIR__ . '/../json_input/customer_info.json'));
+$ven->addCustomerInfo(file_get_contents(__DIR__ . '/../example.json.d/vendor_side/customer_info.json'));
 
-$ven->addDevice(file_get_contents(__DIR__ . '/../json_input/device.json'));
+$ven->addDevice(file_get_contents(__DIR__ . '/../example.json.d/vendor_side/device.json'));
 
-$ven->addDeviceParamInfo(file_get_contents(__DIR__ . '/../json_input/param_info.json'));
+$ven->addDeviceParamInfo(file_get_contents(__DIR__ . '/../example.json.d/vendor_side/param_info.json'));
 
-$ven->addOrder(file_get_contents(__DIR__ . '/../json_input/order.json'));
-
-echo $ven->addInstance();
+$ven->addOrder(file_get_contents(__DIR__ . '/../example.json.d/vendor_side/order.json'));

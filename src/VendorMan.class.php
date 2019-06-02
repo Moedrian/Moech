@@ -68,7 +68,7 @@ class VendorMan implements VendorManInterface
      * @param int $instance_id
      * @see VendorAdd::AddInstance()
      * @param string $json
-     * @see ../test/json_input/config.json
+     * @see ../test/example.json.d/vendor_side/config.json
      */
     public function addInstanceConfig(int $instance_id, string $json): void
     {

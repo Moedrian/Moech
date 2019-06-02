@@ -34,13 +34,15 @@ class VendorAdd implements VendorAddInterface
     /**
      * Adds a single row of product into the database.
      *
-     * @param array $info
-     * @example ../test/json_input/product_additional_services.json Required input type 1
-     * @example ../test/json_input/product_param.json               Required input type 2
+     * @param string $product_json
+     * @example ../test/example.json.d/vendor_side/product_additional_services.json Required input type 1
+     * @example ../test/example.json.d/vendor_side/product_param.json               Required input type 2
      */
-    public function addProduct(array $info): void
+    public function addProduct(string $product_json): void
     {
         $conn = new ReDB('vendor');
+
+        $info = json_decode($product_json, true);
 
         $query = '';
         // Generate different queries according to 'type' value
@@ -74,14 +76,16 @@ class VendorAdd implements VendorAddInterface
     /**
      * Add a new user
      *
-     * @param array $json
-     * @see ../test/json_input/vendor_user_add.json
+     * @param string $user_json
+     * @see ../test/example.json.d/vendor_side/vendor_user_add.json
      */
-    public function addUser(array $json): void
+    public function addUser(string $user_json): void
     {
         $conn = new ReDB('vendor');
 
-        $add = $json['user'];
+        $info = json_decode($user_json, true);
+
+        $add = $info['user'];
 
         $password = password_hash($add['password'], PASSWORD_BCRYPT);
 
@@ -95,13 +99,15 @@ class VendorAdd implements VendorAddInterface
     /**
      * Updates user info after inserting
      *
-     * @param array $json
-     * @see ../test/json_input/vendor_user_info.json
+     * @param string $info_json
+     * @see ../test/example.json.d/vendor_side/vendor_user_info.json
      * @todo a password confirmation call
      */
-    public function addUserInfo(array $json): void
+    public function addUserInfo(string $info_json): void
     {
         $conn = new ReDB('vendor');
+
+        $json = json_decode($info_json, true);
 
         $info = $json['user'];
 
@@ -115,13 +121,15 @@ class VendorAdd implements VendorAddInterface
     /**
      * This shall be the first step of the customer initialization
      *
-     * @param array $info
-     * @see ../test/json_input/customer_sign_up.json    Required input
+     * @param string $customer_json
+     * @see ../test/example.json.d/vendor_side/customer_sign_up.json    Required input
      * @see VendorAdd::addCustomerInfo()                Next step
      */
-    public function addCustomer(array $info): void
+    public function addCustomer(string $customer_json): void
     {
         $conn = new ReDB('vendor');
+
+        $info = json_decode($customer_json, true);
 
         $password = password_hash($info['password'], PASSWORD_BCRYPT);
 
@@ -147,15 +155,15 @@ class VendorAdd implements VendorAddInterface
     /**
      * Adds detailed information of a customer
      *
-     * @param array $info
-     * @see ../test/json_input/customer_info.json   Required input
+     * @param string $info_json
+     * @see ../test/example.json.d/vendor_side/customer_info.json   Required input
      * @see VendorAdd::addDevice()                  Next step
      */
-    public function addCustomerInfo(array $info): void
+    public function addCustomerInfo(string $info_json): void
     {
         $conn = new ReDB('vendor');
 
-        $info = $info['customer'];
+        $info = json_decode($info_json, true)['customer'];
 
         $query = 'update customer_info set cust_contact=?, cust_tel=?, cust_mail=? where cust_name=?';
 
@@ -166,14 +174,16 @@ class VendorAdd implements VendorAddInterface
     /**
      * Adds device for a customer signed up before
      *
-     * @param array $dev_arr
-     * @see ../test/json_input/device.json  Required input
+     * @param string $dev_json
+     * @see ../test/example.json.d/vendor_side/device.json  Required input
      * @see Vendor::addDeviceParamInfo()    Next step
      */
-    public function addDevice(array $dev_arr): void
+    public function addDevice(string $dev_json): void
     {
 
         $conn = new ReDB('vendor');
+
+        $dev_arr = json_decode($dev_json, true);
 
         $cust_id = $this->getCustID($dev_arr['cust_name'], $conn);
 
@@ -198,13 +208,15 @@ class VendorAdd implements VendorAddInterface
     /**
      * Adds params need to be monitored for device(s)
      *
-     * @param array $param_info
-     * @see ../test/json_input/param_info.json  Required input
+     * @param string $param_info_json
+     * @see ../test/example.json.d/vendor_side/param_info.json  Required input
      * @see Vendor::addOrder()                  Next step
      */
-    public function addDeviceParamInfo(array $param_info): void
+    public function addDeviceParamInfo(string $param_info_json): void
     {
         $conn = new ReDB('vendor');
+
+        $param_info = json_decode($param_info_json, true);
 
         try {
             $conn->beginTransaction();
@@ -229,14 +241,16 @@ class VendorAdd implements VendorAddInterface
     /**
      * Adds order record and order items
      *
-     * @param array $orders
-     * @see ../test/json_input/order.json   Required input
+     * @param string $orders_json
+     * @see ../test/example.json.d/vendor_side/order.json   Required input
      * @see VendorMan                       Further management
      * @todo bind orders to params added before
      * @todo the payment system
      */
-    public function addOrder(array $orders): void
+    public function addOrder(string $orders_json): void
     {
+        $orders = json_decode($orders_json, true);
+
         $cust_name = $orders['cust_name'];
 
         date_default_timezone_set('Asia/Shanghai');

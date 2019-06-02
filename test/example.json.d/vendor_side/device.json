@@ -1,4 +1,6 @@
 {
+    "operation": "add",
+    "type": "Device",
     "cust_name": "Pop Team Epic",
     "dev": {
         "dev_1": {

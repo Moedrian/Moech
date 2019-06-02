@@ -1,4 +1,6 @@
 {
+    "operation": "man",
+    "type": "config",
     "property": {
         "DB": "CUSTOMER_CERTAIN_MACHINE"
     },

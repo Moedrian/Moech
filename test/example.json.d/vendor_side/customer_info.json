@@ -1,4 +1,6 @@
 {
+    "operation": "add",
+    "type": "CustomerInfo",
     "customer": {
         "cust_name": "Pop Team Epic",
         "cust_contact": "Pipimi",

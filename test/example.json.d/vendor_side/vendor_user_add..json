@@ -1,4 +1,6 @@
 {
+    "operation": "add",
+    "type": "User",
     "user": {
         "username": "ACBu",
         "password": "A Random Password",

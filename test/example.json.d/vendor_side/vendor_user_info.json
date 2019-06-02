@@ -1,4 +1,6 @@
 {
+    "operation": "add",
+    "type": "UserInfo",
     "user": {
         "username": "ACBu",
         "alias": "Wai",

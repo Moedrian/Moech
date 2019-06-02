@@ -1,4 +1,6 @@
 {
+    "operation": "add",
+    "type": "DeviceParamInfo",
     "dev_1": {
         "dev_id": "YJSP114",
         "params": {

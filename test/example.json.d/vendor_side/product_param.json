@@ -1,4 +1,6 @@
 {
+    "operation": "add",
+    "type": "Product",
     "category": "param",
     "product": {
         "item": "small",

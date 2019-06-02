@@ -1,4 +1,6 @@
 {
+    "operation": "add",
+    "type": "Order",
     "cust_name": "Pop Team Epic",
     "orders": {
         "item_1":{

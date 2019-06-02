@@ -1,4 +1,6 @@
 {
+    "operation": "add",
+    "type": "Customer",
     "sign_up": {
         "username": "Yano",
         "user_mail": "hellshake@mail.acbu.com",

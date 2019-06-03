@@ -1,10 +1,10 @@
 <?php
 
-require __DIR__ . '/../../popdor/autoload.php';
+require __DIR__ . '/../../vendor/autoload.php';
 
 use Moech\Vendor\Vendor;
 
-$pop = new Vendor('add');
+$pop = Vendor::operation('add');
 
 $pop->addCustomer(file_get_contents(__DIR__ . '/../example.json.d/customer_sign_up.json'));
 
@@ -17,9 +17,9 @@ $pop->addDeviceParamInfo(file_get_contents(__DIR__ . '/../example.json.d/param_i
 $pop->addOrder(file_get_contents(__DIR__ . '/../example.json.d/order.json'));
 
 
-$team = new Vendor('man');
+$team = Vendor::operation('man');
 
-$team->addInstanceConfig(30001, file_get_contents(__DIR__ . '/../example.json.d/config.json'));
+$team->addInstanceConfig([30001, file_get_contents(__DIR__ . '/../example.json.d/config.json')]);
 
 $team->setInstanceStatus(30001, 'deploy');
 

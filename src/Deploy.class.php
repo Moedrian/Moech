@@ -15,16 +15,17 @@ namespace Moech\Deploy;
 
 require __DIR__ . '/../vendor/autoload.php';
 
-use Moech\Interfaces\DeployInstanceInterface;
+use Moech\Interfaces\DeployInterface;
 
 use Moech\Vendor\VendorMan;
 use Zend\Config\Config;
 use Zend\Config\Writer\Ini;
 
 /**
+ * @used-by VendorAdd
  * @used-by VendorMan
  */
-class DeployInstance implements DeployInstanceInterface
+class Deploy implements DeployInterface
 {
 
     /**
@@ -36,15 +37,15 @@ class DeployInstance implements DeployInstanceInterface
     {
         chmod(__DIR__ . '/../deploy', 0755);
         $pathname = __DIR__ . '/../deploy/instance_' . $instance_id;
-
-        if(!mkdir($pathname, 0755, true) && !is_dir($pathname)) {
+        
+        if(!is_dir($pathname) && !mkdir($pathname, 0755, true) && !is_dir($pathname)) {
             die('Failed to create folders');
         }
 
         // Create directories to place codes, etc.
         $dir_array = ['src', 'src/interfaces', 'html', 'config', 'log', 'assets', 'api'];
         foreach ($dir_array as $item) {
-            if(!mkdir($pathname.'/'.$item, 0755, true) && !is_dir($pathname.'/'.$item)) {
+            if(!is_dir($pathname.'/'.$item) && !mkdir($pathname.'/'.$item, 0755, true) && !is_dir($pathname.'/'.$item)) {
                 die('Failed to create folders');
                 }
         }

@@ -123,13 +123,15 @@ class VendorAdd implements VendorAddInterface
      *
      * @param string $customer_json
      * @see ../test/example.json.d/vendor_side/customer_sign_up.json    Required input
-     * @see VendorAdd::addCustomerInfo()                Next step
+     * @see VendorAdd::addCustomerInfo()                                Next step
      */
     public function addCustomer(string $customer_json): void
     {
         $conn = new ReDB('vendor');
 
-        $info = json_decode($customer_json, true);
+        $json = json_decode($customer_json, true);
+
+        $info = $json['sign_up'];
 
         $password = password_hash($info['password'], PASSWORD_BCRYPT);
 
@@ -141,7 +143,7 @@ class VendorAdd implements VendorAddInterface
 
             // Next, insert customer name into `customer_info`
             $query = 'insert into customer_info(cust_id, cust_name) values (null, ?)';
-            $conn->prepare($query)->execute([$info['sign_up']['cust_name']]);
+            $conn->prepare($query)->execute([$info['cust_name']]);
 
             $conn->commit();
         } catch (PDOException $e) {

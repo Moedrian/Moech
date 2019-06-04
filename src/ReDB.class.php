@@ -45,7 +45,7 @@ class ReDB extends PDO
             $filename = __DIR__. '/../config/' . $instance_id . '.ini';
             chmod($filename, 0755);
             $ini = parse_ini_file($filename);
-            $dsn = $ini['ReDB_TYPE'] . ':host=' . $ini['HOST'] . ';dbname=' . $db_name;
+            $dsn = $ini['ReDB_TYPE'] . ':host=127.0.0.1' . ';dbname=' . $db_name;
 
         }
 

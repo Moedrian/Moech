@@ -57,7 +57,12 @@ class Deploy implements DeployInterface
 
     public function copySrc(int $instance_id): void
     {
+        // Target directory src
+        $src_target = __DIR__ . '/../deploy/instance_' . $instance_id;
 
+        chmod($src_target, 0755);
+
+        copy(__DIR__ . '/ReDB.class.php', $src_target);
     }
 
 
@@ -67,7 +72,7 @@ class Deploy implements DeployInterface
      * @param int $instance_id      the name of configuration file to be created
      *                              instance_114514.ini
      * @param string $json          information to be placed into the configuration
-     * @see ../test/json_input/config.json
+     * @see ../test/example.json.d/config.json
      * @uses Config
      * @uses Ini
      */

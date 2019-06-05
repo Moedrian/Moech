@@ -40,13 +40,13 @@ class RaspiDataConvey implements DataConveyInterface
 
             foreach ($data['data'] as $data_set) {
 
-                $crt_time = (string)round($time_step * $j);
-
+                $interval = (string)round($time_step * $j);
+                $crt_time = $data['time'] . '.' . $interval;
                 // Like this (2019-6-4 10:30:46.98, 89.64)
-                $sql_part_values[] = "('" . $data['time'] . '.' . $crt_time . "'," . $data_set[$i] . ')';
+                $sql_part_values[] = "('" . $crt_time . "'," . $data_set[$i] . ')';
 
                 //Redis key-value pair
-                $redis_kv[$data['id'] . ':' . $data['order'][$i] . ':' . $data['time'].'.'.$crt_time] = $data_set[$i];
+                $redis_kv[$data['id'] . ':' . $data['order'][$i] . ':' . $crt_time] = $data_set[$i];
 
                 $j++;
             }
@@ -54,6 +54,24 @@ class RaspiDataConvey implements DataConveyInterface
             $values['ReDB'][] = 'insert into ' . $db .'.'. $data['order'][$i] . ' values' . implode(',', $sql_part_values);
             $values['NoDB'][] = $redis_kv;
         }
+
+        // Special treatment to dear vibration
+        $vib_count = count($data['Vibration']);
+        $vib_time_step = round(1000 / $vib_count);
+
+        $vib_pre_query = [];
+
+        for ($i = 0; $i < $vib_count; $i++) {
+
+            $interval = (string)round($vib_time_step * $i);
+            $crt_time = $data['time'] . '.' . $interval;
+
+            $vib_pre_query[] = "('" . $crt_time . "'," . $data['Vibration'][$i] . ')';
+            $redis_kv[$data['id'] . ':Vibration:' . $crt_time] = $data['Vibration'][$i];
+        }
+
+        $values['ReDB'][] = 'insert into ' . $data['id'] . '.Vibration values' . implode(',', $vib_pre_query);
+        $values['NoDB'][] = $redis_kv;
 
         return $values;
     }

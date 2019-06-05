@@ -1,5 +1,13 @@
 <?php
 
+/**
+ * An implementation of DataConvey, for Raspberry Pi
+ *
+ * @author      <ikamitse@gmail.com>    Moedrian
+ * @copyright   2017 - 2021             Moedrian
+ * @package     Moech
+ * @license     Apache-2.0
+ */
 
 namespace Moech\Data\Raspi;
 
@@ -14,14 +22,13 @@ use PDOException;
 class RaspiDataConvey implements DataConveyInterface
 {
 
-    public function __call($name, $arguments)
-    {
-        // TODO: Implement @method void goInReDB(int $instance_id, string $json)
-        // TODO: Implement @method void goInNoDB(int $instance_id, string $json)
-        // TODO: Implement @method array goOutReDB(int $instance_id, string $json)
-        // TODO: Implement @method array goOutNoDB(int $instance_id, string $json)
-    }
 
+    /**
+     * Transfers the array into ReDB(MySQL) & NoDB(Redis) queries
+     *
+     * @param   array  $data comes from JSON received
+     * @return  array
+     */
     public function queryGlue(array $data): array
     {
         $db = $data['id'];
@@ -31,12 +38,10 @@ class RaspiDataConvey implements DataConveyInterface
         $data_count = count($data['data']);
         $time_step = round(1000 / $data_count);
 
-
         for ($i = 0; $i < $param_count; $i++) {
             // $j shall be defined out of the loop
             $j = 0;
             $sql_part_values = [];
-            $redis_kv = [];
 
             foreach ($data['data'] as $data_set) {
 
@@ -45,8 +50,16 @@ class RaspiDataConvey implements DataConveyInterface
                 // Like this (2019-6-4 10:30:46.98, 89.64)
                 $sql_part_values[] = "('" . $crt_time . "'," . $data_set[$i] . ')';
 
-                //Redis key-value pair
-                $values['NoDB'][$data['id'] . ':' . $data['order'][$i] . ':' . $crt_time] = $data_set[$i];
+                /*
+                 * Like
+                 * [
+                 * raspberrypi:U => ['raspberrypi:U:2019-06-04 11:45:14.420' => 69],
+                 * raspberrypi:I => ['raspberrypi:I:2019-06-04 11:45:14.420' => 42]
+                 * ]
+                 *
+                 * Same in Vibration queries next
+                 */
+                $values['NoDB'][$db.':'.$data['order'][$i]][$data['id'] . ':' . $data['order'][$i] . ':' . $crt_time] = $data_set[$i];
 
                 $j++;
             }
@@ -66,7 +79,7 @@ class RaspiDataConvey implements DataConveyInterface
             $crt_time = $data['time'] . '.' . $interval;
 
             $vib_pre_query[] = "('" . $crt_time . "'," . $data['Vibration'][$i] . ')';
-            $values['NoDB'][$data['id'] . ':Vibration:' . $crt_time] = $data['Vibration'][$i];
+            $values['NoDB'][$db.':Vibration'][$data['id'] . ':Vibration:' . $crt_time] = $data['Vibration'][$i];
         }
 
         $values['ReDB'][] = 'insert into ' . $data['id'] . '.Vibration values' . implode(',', $vib_pre_query);
@@ -74,6 +87,12 @@ class RaspiDataConvey implements DataConveyInterface
         return $values;
     }
 
+
+    /**
+     * Inserts into SQL database
+     *
+     * @param array $data usually $data['ReDB'] from queryGlue()
+     */
     public function goInReDB(array $data): void
     {
         $conn = new ReDB('localhost', 30001);
@@ -90,21 +109,37 @@ class RaspiDataConvey implements DataConveyInterface
         }
     }
 
+
+    /**
+     * Adds key-value pair and sorted sets to Redis
+     *
+     * @param array $data
+     */
     public function goInNoDB(array $data): void
     {
         $client = new Client('tcp://127.0.0.1:6379');
         // A transaction
         $client->multi();
-        $client->mset($data);
+
+        foreach ($data as $key => $pairs) {
+            // Key - Value
+            $client->mset($pairs);
+            // Sorted sets
+            $client->zadd($key, $pairs);
+        }
+
         $client->exec();
+
+        $client = null;
     }
 
-    public function goOutNoDB(): void
+
+    public function goOutNoDB(): string
     {
 
     }
 
-    public function goOutReDB(): void
+    public function goOutReDB(): string
     {
 
     }

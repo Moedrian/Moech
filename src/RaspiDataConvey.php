@@ -1,7 +1,7 @@
 <?php
 
 
-namespace Moech;
+namespace Moech\Data\Raspi;
 
 require __DIR__ . '/../vendor/autoload.php';
 
@@ -46,13 +46,12 @@ class RaspiDataConvey implements DataConveyInterface
                 $sql_part_values[] = "('" . $crt_time . "'," . $data_set[$i] . ')';
 
                 //Redis key-value pair
-                $redis_kv[$data['id'] . ':' . $data['order'][$i] . ':' . $crt_time] = $data_set[$i];
+                $values['NoDB'][$data['id'] . ':' . $data['order'][$i] . ':' . $crt_time] = $data_set[$i];
 
                 $j++;
             }
 
             $values['ReDB'][] = 'insert into ' . $db .'.'. $data['order'][$i] . ' values' . implode(',', $sql_part_values);
-            $values['NoDB'][] = $redis_kv;
         }
 
         // Special treatment to dear vibration
@@ -67,11 +66,10 @@ class RaspiDataConvey implements DataConveyInterface
             $crt_time = $data['time'] . '.' . $interval;
 
             $vib_pre_query[] = "('" . $crt_time . "'," . $data['Vibration'][$i] . ')';
-            $redis_kv[$data['id'] . ':Vibration:' . $crt_time] = $data['Vibration'][$i];
+            $values['NoDB'][$data['id'] . ':Vibration:' . $crt_time] = $data['Vibration'][$i];
         }
 
         $values['ReDB'][] = 'insert into ' . $data['id'] . '.Vibration values' . implode(',', $vib_pre_query);
-        $values['NoDB'][] = $redis_kv;
 
         return $values;
     }
@@ -94,7 +92,11 @@ class RaspiDataConvey implements DataConveyInterface
 
     public function goInNoDB(array $data): void
     {
-
+        $client = new Client('tcp://127.0.0.1:6379');
+        // A transaction
+        $client->multi();
+        $client->mset($data);
+        $client->exec();
     }
 
     public function goOutNoDB(): void

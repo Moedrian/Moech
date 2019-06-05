@@ -5,7 +5,7 @@ set_time_limit(0);
 require __DIR__ . '/../vendor/autoload.php';
 
 use Workerman\Worker;
-use Moech\RaspiDataConvey;
+use Moech\Data\Raspi\RaspiDataConvey;
 
 $ws_worker = new Worker('tcp://xxx.xxx.xxx.xxx:xxxxx');
 

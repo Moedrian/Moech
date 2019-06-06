@@ -1,7 +1,21 @@
 <?php
 
+/**
+ * Provides a doc like entrance for vendor utility
+ *
+ * @author      <ikamitse@gmail.com>    Moedrian
+ * @copyright   2017 - 2021             Moedrian
+ * @package     Moech
+ * @license     Apache-2.0
+ * @since       0.1
+ * @version     0.1
+ * @example     ../test/simple_sequence_test/Vendor.full.php
+ */
 
 namespace Moech\Vendor;
+
+use Moech\Interfaces\VendorAddInterface;
+use Moech\Interfaces\VendorManInterface;
 
 /**
  * For namespace Vendor utility
@@ -22,7 +36,7 @@ namespace Moech\Vendor;
  * @method void parseOrder(int $order_num)
  * @method void createParamTable()
  */
-class Vendor
+class Vendor implements VendorAddInterface, VendorManInterface
 {
     use VendorTool;
 

@@ -11,6 +11,7 @@ namespace Moech\Interfaces;
  * argument.
  *
  * @method void setInstanceStatus()
+ * @method void addInstanceConfig()
  * @method void allocateInstanceToCustomer()
  * @method void allocateInstanceToDevice()
  * @method void createParamTable()

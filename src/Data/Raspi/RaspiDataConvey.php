@@ -11,7 +11,7 @@
 
 namespace Moech\Data\Raspi;
 
-require __DIR__ . '/../vendor/autoload.php';
+require __DIR__ . '/../../../vendor/autoload.php';
 
 use Moech\Data\NoDB;
 use Moech\Data\ReDB;

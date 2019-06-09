@@ -3,7 +3,7 @@
 
 namespace Moech\Data;
 
-require __DIR__ . '/../vendor/autoload.php';
+require __DIR__ . '/../../vendor/autoload.php';
 
 use Moech\Data\ReDB;
 use Moech\Data\NoDB;

@@ -7,6 +7,7 @@ use PDOException;
 
 class ReDB extends PDO
 {
+
     /**
      * ReDB constructor.
      *
@@ -27,7 +28,7 @@ class ReDB extends PDO
 
         if ($type === 'vendor') {
 
-            $filename = __DIR__ . '/../config/vendor.ini';
+            $filename = __DIR__ . '/../../config/vendor.ini';
             chmod($filename, 0755);
             $ini = parse_ini_file($filename);
             $dsn = $ini['ReDB_TYPE'] . ':host=' . $ini['HOST'] . ';dbname=' . $ini['VENDOR_DB'];
@@ -35,14 +36,14 @@ class ReDB extends PDO
         } elseif ($type === 'customer') {
 
             // Note here the dbname is not specified
-            $filename = __DIR__ . '/../deploy/instance_' . $instance_id . '/config/' . $instance_id . '.ini';
+            $filename = __DIR__ . '/../../deploy/instance_' . $instance_id . '/config/' . $instance_id . '.ini';
             chmod($filename, 0755);
             $ini = parse_ini_file($filename);
             $dsn = $ini['ReDB_TYPE'] . ':host=' . $ini['HOST'];
 
         } elseif ($type === 'localhost') {
 
-            $filename = __DIR__ . '/../config/' . $instance_id . '.ini';
+            $filename = __DIR__ . '/../../config/' . $instance_id . '.ini';
             chmod($filename, 0755);
             $ini = parse_ini_file($filename);
             $dsn = $ini['ReDB_TYPE'] . ':host=127.0.0.1' . ';dbname=' . $db_name;
@@ -62,7 +63,7 @@ class ReDB extends PDO
      * @param object $PDOException a PDOException instance
      * @param string $path_to_log
      */
-    public function errorLogWriter(object $PDOException, string $path_to_log = __DIR__ . '/../log/ReDB_error.log'): void
+    public function errorLogWriter(object $PDOException, string $path_to_log = __DIR__ . '/../../log/ReDB_error.log'): void
     {
         chmod($path_to_log, 0755);
         $fp = fopen($path_to_log, 'a+b');

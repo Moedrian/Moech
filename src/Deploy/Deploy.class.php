@@ -13,9 +13,8 @@
 
 namespace Moech\Deploy;
 
-require __DIR__ . '/../vendor/autoload.php';
+require __DIR__ . '/../../vendor/autoload.php';
 
-use Moech\Interfaces\DataConveyInterface;
 use Moech\Interfaces\DeployInterface;
 
 use Moech\Vendor\VendorMan;
@@ -36,8 +35,8 @@ class Deploy implements DeployInterface
      */
     public function generateDir(int $instance_id): void
     {
-        chmod(__DIR__ . '/../deploy', 0755);
-        $pathname = __DIR__ . '/../deploy/instance_' . $instance_id;
+        chmod(__DIR__ . '/../../deploy', 0755);
+        $pathname = __DIR__ . '/../../deploy/instance_' . $instance_id;
 
         if(!is_dir($pathname) && !mkdir($pathname, 0755, true) && !is_dir($pathname)) {
             die('Failed to create folders');
@@ -59,7 +58,7 @@ class Deploy implements DeployInterface
     public function copySrc(int $instance_id): void
     {
         // Target directory src
-        $target = __DIR__ . '/../deploy/instance_' . $instance_id;
+        $target = __DIR__ . '/../../deploy/instance_' . $instance_id;
 
         chmod($target, 0755);
 
@@ -89,13 +88,13 @@ class Deploy implements DeployInterface
     public function generateConfigFile(int $instance_id, string $json): void
     {
         // Be sure to check the permission first
-        chmod(__DIR__ . '/../deploy', 0755);
+        chmod(__DIR__ . '/../../deploy', 0755);
 
         $config = new Config(json_decode($json, true));
         $writer = new Ini();
 
         // as $this->generateDir() suggests
-        $filename = __DIR__ . '/../deploy/instance_' . $instance_id .'/config/' . $instance_id . '.ini';
+        $filename = __DIR__ . '/../../deploy/instance_' . $instance_id .'/config/' . $instance_id . '.ini';
 
         // 'b' flag is for 'binary safe'
         $fp = fopen($filename, 'wb');
@@ -103,7 +102,7 @@ class Deploy implements DeployInterface
         fclose($fp);
 
         // Get a copy for vendor utility backup
-        copy($filename, __DIR__ . '/../deploy/instance_config_files/' . $instance_id . '.ini');
+        copy($filename, __DIR__ . '/../../deploy/instance_config_files/' . $instance_id . '.ini');
     }
 
 

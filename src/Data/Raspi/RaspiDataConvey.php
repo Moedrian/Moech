@@ -122,8 +122,6 @@ class RaspiDataConvey implements DataConveyInterface
         $client->multi();
 
         foreach ($data as $key => $pairs) {
-            // Key - Value
-            $client->mset($pairs);
             // Sorted sets
             $client->zadd($key, $pairs);
         }

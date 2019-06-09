@@ -10,7 +10,7 @@ namespace Moech\Interfaces;
  * @method void getHashData()
  * @method void getSerialData(int $amount)
  */
-class NoDBInterface
+Interface NoDBInterface
 {
 
 }

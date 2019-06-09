@@ -15,6 +15,7 @@ namespace Moech\Deploy;
 
 require __DIR__ . '/../vendor/autoload.php';
 
+use Moech\Interfaces\DataConveyInterface;
 use Moech\Interfaces\DeployInterface;
 
 use Moech\Vendor\VendorMan;
@@ -58,11 +59,20 @@ class Deploy implements DeployInterface
     public function copySrc(int $instance_id): void
     {
         // Target directory src
-        $src_target = __DIR__ . '/../deploy/instance_' . $instance_id;
+        $target = __DIR__ . '/../deploy/instance_' . $instance_id;
 
-        chmod($src_target, 0755);
+        chmod($target, 0755);
 
-        copy(__DIR__ . '/ReDB.class.php', $src_target);
+        $files = array(
+            '/Interfaces/DataConveyInterface.php',
+            '/ReDB.class.php',
+            '/User.class.php'
+        );
+
+        foreach ($files as $file) {
+            copy(__DIR__.$file, $target . $file);
+        }
+
     }
 
 

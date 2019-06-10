@@ -127,19 +127,40 @@ class RaspiDataConvey implements DataConveyInterface
 
 
     /**
-     * Adds key-value pair and sorted sets to Redis
+     * Adds sorted sets to Redis
+     *
+     * For date records, set timestamp as value(score) and param value
+     * as key(member); for alarm function, set timestamp as member and
+     * param value as score
      *
      * @param array $data
      */
     public function goInNoDB(array $data): void
     {
         $client = new Client('tcp://127.0.0.1:6379');
+
         // A transaction
         $client->multi();
 
+        // Data record
+        foreach ($data as $set_key => $datum) {
+
+            $re_dict = [];
+
+            foreach ($datum as $timestamp => $value) {
+                $re_dict[$value.':'.$timestamp] = $timestamp;
+            }
+
+            print_r($re_dict);
+
+            // 'ts' stands for time serial
+            $client->zadd('ts:'.$set_key, $re_dict);
+        }
+
+        // Alarm function
         foreach ($data as $key => $pairs) {
-            // Sorted sets
-            $client->zadd($key, $pairs);
+            // 'func' stands for function utility
+            $client->zadd('func:'.$key, $pairs);
         }
 
         $client->exec();

@@ -13,7 +13,6 @@ namespace Moech\Data\Raspi;
 
 require __DIR__ . '/../../../vendor/autoload.php';
 
-use Moech\Data\NoDB;
 use Moech\Data\ReDB;
 use Moech\Interfaces\DataConveyInterface;
 use Predis\Client;
@@ -34,40 +33,56 @@ class RaspiDataConvey implements DataConveyInterface
         $db = $data['id'];
         $values = [];
 
+        // Counts the param num for iteration
         $param_count = count($data['order']);
+
+        // Counts the value rows
         $data_count = count($data['data']);
+
+        // Time step for millisecond
         $time_step = round(1000 / $data_count);
 
+        // timestamp is for redis, str time for SQL
+        $str_time = $data['time'];
+        $timestamp = strtotime($data['time']);
+
+        // param-level loop
         for ($i = 0; $i < $param_count; $i++) {
-            // $j shall be defined out of the loop
+
+            // $j is for counting the num of data set
             $j = 0;
             $sql_part_values = [];
 
+            // value-level loop
             foreach ($data['data'] as $data_set) {
-
+                // Yes, manually
                 $interval = (string)round($time_step * $j);
-                $crt_time = $data['time'] . '.' . $interval;
+
+                $redis_timestamp = $timestamp .'.'. $interval;
+                $sql_crt_time = $str_time .'.'. $interval;
+
                 // Like this (2019-6-4 10:30:46.98, 89.64)
-                $sql_part_values[] = "('" . $crt_time . "'," . $data_set[$i] . ')';
+                $sql_part_values[] = "('" . $sql_crt_time . "'," . $data_set[$i] . ')';
 
                 /*
                  * Like
                  * [
                  * raspberrypi:U => ['raspberrypi:U:2019-06-04 11:45:14.420' => 69],
-                 * raspberrypi:I => ['raspberrypi:I:2019-06-04 11:45:14.420' => 42]
+                 * raspberrypi:I => ['raspberrypi:I:2019-06-04 11:45:14.690' => 42]
                  * ]
                  *
                  * Same in Vibration queries next
                  */
-                $values['NoDB'][$db.':'.$data['order'][$i]][$data['id'] . ':' . $data['order'][$i] . ':' . $crt_time] = $data_set[$i];
+                $values['NoDB'][$db.':'.$data['order'][$i]][$redis_timestamp] = $data_set[$i];
 
+                // Ready for next interval
                 $j++;
             }
 
             $values['ReDB'][] = 'insert into ' . $db .'.'. $data['order'][$i] . ' values' . implode(',', $sql_part_values);
         }
 
-        // Special treatment to dear vibration
+        // Special treatment to the holy mighty vibration
         $vib_count = count($data['Vibration']);
         $vib_time_step = round(1000 / $vib_count);
 
@@ -76,10 +91,11 @@ class RaspiDataConvey implements DataConveyInterface
         for ($i = 0; $i < $vib_count; $i++) {
 
             $interval = (string)round($vib_time_step * $i);
-            $crt_time = $data['time'] . '.' . $interval;
+            $redis_timestamp = $timestamp .'.'. $interval;
+            $sql_crt_time = $str_time .'.'. $interval;
 
-            $vib_pre_query[] = "('" . $crt_time . "'," . $data['Vibration'][$i] . ')';
-            $values['NoDB'][$db.':Vibration'][$data['id'] . ':Vibration:' . $crt_time] = $data['Vibration'][$i];
+            $vib_pre_query[] = "('" . $sql_crt_time . "'," . $data['Vibration'][$i] . ')';
+            $values['NoDB'][$db.':Vibration'][$redis_timestamp] = $data['Vibration'][$i];
         }
 
         $values['ReDB'][] = 'insert into ' . $data['id'] . '.Vibration values' . implode(',', $vib_pre_query);

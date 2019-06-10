@@ -169,9 +169,27 @@ class RaspiDataConvey implements DataConveyInterface
     }
 
 
-    public function goOutNoDB(): string
+    public function goOutNoDB(string $json): string
     {
+        $req = json_decode($json, true);
 
+        $pre_key = $req['dev_id'] .':'. $req['param'];
+        
+        $min = (float)$req['from'];
+        $max = $min + 1;
+
+        $client = new Client('tcp://127.0.0.1:6379');
+
+        $data = 'empty_set';
+
+        if ($req['type'] === 'ts') {
+            $key = 'ts:' . $pre_key;
+            $data = json_encode($client->zrangebyscore($key, $min, $max, ['withscores' => true]));
+        }
+
+        $client = null;
+
+        return $data;
     }
 
     public function goOutReDB(): string

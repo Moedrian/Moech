@@ -205,13 +205,34 @@ class RaspiDataConvey implements DataConveyInterface
 
     public function goOutReDB(array $request): string
     {
-        return 'Currently Not Available';
+        $conn = new ReDB('localhost', 30001);
+
+        $from = date('Y-m-d H:i:s', (int)$request['from']);
+        $to = date('Y-m-d H:i:s', (int)$request['to']);
+
+        $db = $request['dev_id'] .'.'. $request['param'];
+
+        $query = 'select * from ' . $db . ' where crt_time between ? and ? order by crt_time desc';
+
+        $stmt = $conn->prepare($query);
+        $stmt->execute([$from, $to]);
+
+        $raw_data = $stmt->fetchAll(ReDB::FETCH_NUM);
+
+        $pkg = [];
+
+        foreach ($raw_data as $datum) {
+            $pkg[$datum[0]] = $datum[1];
+        }
+
+        return json_encode($pkg);
     }
 
 
     public function fetchData(string $json): string
     {
         $request = json_decode($json, true);
+
         if ($request['to']) {
             return $this->goOutReDB($request);
         }

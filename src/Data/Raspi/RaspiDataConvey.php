@@ -151,8 +151,6 @@ class RaspiDataConvey implements DataConveyInterface
                 $re_dict[$value.':'.$timestamp] = $timestamp;
             }
 
-            print_r($re_dict);
-
             // 'ts' stands for time serial
             $client->zadd('ts:'.$set_key, $re_dict);
         }
@@ -169,31 +167,55 @@ class RaspiDataConvey implements DataConveyInterface
     }
 
 
-    public function goOutNoDB(string $json): string
+    public function goOutNoDB(array $req): string
     {
-        $req = json_decode($json, true);
-
         $pre_key = $req['dev_id'] .':'. $req['param'];
         
         $min = (float)$req['from'];
-        $max = $min + 1;
+        $max = $min + (float)$req['amount'];
 
         $client = new Client('tcp://127.0.0.1:6379');
 
-        $data = 'empty_set';
+        // @todo alarm `func` series
+        // But this maybe implemented in alarm module
+        // That's why namespace matters
 
-        if ($req['type'] === 'ts') {
-            $key = 'ts:' . $pre_key;
-            $data = json_encode($client->zrangebyscore($key, $min, $max, ['withscores' => true]));
+        $key = 'ts:' . $pre_key;
+
+        $raw_data = $client->zrangebyscore($key, $min, $max, ['withscores' => true]);
+
+        $pre_data = [];
+
+        $combs = array_keys($raw_data);
+
+        foreach ($combs as $comb) {
+            $comb = explode(':',$comb);
+            $pre_time = explode('.', $comb[1]);
+            $key = date('Y-m-d H:i:s', (int)$pre_time[0]).'.'.$pre_time[1];
+            $pre_data[$key] = $comb[0];
         }
+
+        $data = json_encode($pre_data);
 
         $client = null;
 
         return $data;
     }
 
-    public function goOutReDB(): string
-    {
 
+    public function goOutReDB(array $request): string
+    {
+        return 'Currently Not Available';
+    }
+
+
+    public function fetchData(string $json): string
+    {
+        $request = json_decode($json, true);
+        if ($request['to']) {
+            return $this->goOutReDB($request);
+        }
+
+        return $this->goOutNoDB($request);
     }
 }

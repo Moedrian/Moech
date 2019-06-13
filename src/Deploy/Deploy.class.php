@@ -18,10 +18,12 @@ require __DIR__ . '/../../vendor/autoload.php';
 use Moech\Interfaces\DeployInterface;
 
 use Moech\Vendor\VendorMan;
+use Moech\Exception\MoechException;
 use Zend\Config\Config;
 use Zend\Config\Writer\Ini;
 
 /**
+ * @uses    MoechException
  * @used-by VendorAdd
  * @used-by VendorMan
  */
@@ -38,20 +40,45 @@ class Deploy implements DeployInterface
         chmod(__DIR__ . '/../../deploy', 0755);
         $pathname = __DIR__ . '/../../deploy/instance_' . $instance_id;
 
-        if(!is_dir($pathname) && !mkdir($pathname, 0755, true) && !is_dir($pathname)) {
-            die('Failed to create folders');
+        try {
+
+            if (!is_dir($pathname) &&
+                !mkdir($pathname, 0755, true) &&
+                !is_dir($pathname)) {
+                throw new MoechException('Failed to create directory');
+            }
+
+        } catch (MoechException $exception) {
+            $exception->writeErrorLog($exception);
         }
+
 
         // Create directories to place codes, etc.
-        $dir_array = ['src', 'src/Interfaces', 'html', 'config', 'log', 'assets', 'api'];
-        foreach ($dir_array as $item) {
-            if(!is_dir($pathname.'/'.$item) && !mkdir($pathname.'/'.$item, 0755, true) && !is_dir($pathname.'/'.$item)) {
-                die('Failed to create folders');
-                }
-        }
+        $dirs = [
+            'src',
+            'src/Interfaces',
+            'src/Data',
+            'html',
+            'config',
+            'log',
+            'assets',
+            'api'
+        ];
 
-        // Copy composer.json there, after uploaded, `composer install` shall be executed
-        copy(__DIR__ . '/../composer.json', $pathname . '/composer.json');
+        foreach ($dirs as $dir) {
+            try {
+
+                if (!is_dir($pathname.'/'.$dir) &&
+                    !mkdir($pathname.'/'.$dir, 0755, true) &&
+                    !is_dir($pathname.'/'.$dir)) {
+
+                    throw new MoechException('Failed to create directories.');
+                }
+
+            } catch (MoechException $exception) {
+                $exception->writeErrorLog($exception);
+            }
+        }
     }
 
 
@@ -60,16 +87,20 @@ class Deploy implements DeployInterface
         // Target directory src
         $target = __DIR__ . '/../../deploy/instance_' . $instance_id;
 
+        // Wryyyyyyyyyy!
         chmod($target, 0755);
 
+        // Copy composer.json there, after uploaded, `composer install` shall be executed
+        copy(__DIR__ . '/../../composer.json', $target . '/composer.json');
+
+        // There will be more... maybe
         $files = array(
             '/Interfaces/DataConveyInterface.php',
-            '/ReDB.class.php',
-            '/User.class.php'
+            '/Data/ReDB.class.php'
         );
 
         foreach ($files as $file) {
-            copy(__DIR__.$file, $target . $file);
+            copy(__DIR__ .'/..'. $file, $target . '/src' . $file);
         }
 
     }

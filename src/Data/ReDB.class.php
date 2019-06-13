@@ -1,10 +1,26 @@
 <?php
 
+/**
+ * Custom PDO class extension
+ *
+ * @author      <ikamitse@gmail.com>    Moedrian
+ * @copyright   2017 - 2021             Moedrian
+ * @package     Moech
+ * @license     Apache-2.0
+ * @since       0.1
+ * @version     0.1
+ */
+
+
 namespace Moech\Data;
 
 use PDO;
 use PDOException;
 
+/**
+ * @uses PDO
+ * @uses PDOException
+ */
 class ReDB extends PDO
 {
 
@@ -53,9 +69,10 @@ class ReDB extends PDO
         try {
             parent::__construct($dsn, $ini['ReDB_USER'], $ini['ReDB_PASSWD']);
         } catch (PDOException $e) {
-            $this->errorLogWriter($e);
+            $this->writeErrorLog($e);
         }
     }
+
 
     /**
      * Writes error logs in database
@@ -63,7 +80,7 @@ class ReDB extends PDO
      * @param object $PDOException a PDOException instance
      * @param string $path_to_log
      */
-    public function errorLogWriter(object $PDOException, string $path_to_log = __DIR__ . '/../../log/ReDB_error.log'): void
+    public function writeErrorLog(object $PDOException, string $path_to_log = __DIR__ . '/../../log/ReDB_error.log'): void
     {
         chmod($path_to_log, 0755);
         $fp = fopen($path_to_log, 'a+b');
@@ -71,6 +88,7 @@ class ReDB extends PDO
         fwrite($fp, 'Error found in ' . __FILE__ . ' in ' . __LINE__ . "\n\n");
         fclose($fp);
     }
+
 
     /**
      * Checks if a database exists in certain customer's instance
@@ -101,7 +119,7 @@ class ReDB extends PDO
             $query = 'create database if not exists '. $db_name .' default character set utf8mb4 collate utf8mb4_unicode_ci';
             $this->prepare($query)->execute();
         } catch (PDOException $e) {
-            $this->errorLogWriter($e);
+            $this->writeErrorLog($e);
         }
     }
 }

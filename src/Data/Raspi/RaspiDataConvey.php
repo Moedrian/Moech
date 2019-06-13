@@ -121,7 +121,7 @@ class RaspiDataConvey implements DataConveyInterface
             $conn->commit();
         } catch (PDOException $e) {
             $conn->rollBack();
-            $conn->errorLogWriter($e);
+            $conn->writeErrorLog($e);
         }
     }
 
@@ -169,10 +169,14 @@ class RaspiDataConvey implements DataConveyInterface
 
     public function goOutNoDB(array $req): string
     {
-        $pre_key = $req['dev_id'] .':'. $req['param'];
-        
+
         $min = (float)$req['from'];
-        $max = $min + (float)$req['amount'];
+
+        if ($req['to']) {
+            $max = $req['to'];
+        } else {
+            $max = $min + (float)$req['amount'];
+        }
 
         $client = new Client('tcp://127.0.0.1:6379');
 
@@ -180,9 +184,7 @@ class RaspiDataConvey implements DataConveyInterface
         // But this maybe implemented in alarm module
         // That's why namespace matters
 
-        $key = 'ts:' . $pre_key;
-
-        $raw_data = $client->zrangebyscore($key, $min, $max, ['withscores' => true]);
+        $raw_data = $client->zrangebyscore($req['key'], $min, $max, ['withscores' => true]);
 
         $pre_data = [];
 
@@ -219,6 +221,8 @@ class RaspiDataConvey implements DataConveyInterface
 
         $raw_data = $stmt->fetchAll(ReDB::FETCH_NUM);
 
+        $conn = null;
+
         $pkg = [];
 
         foreach ($raw_data as $datum) {
@@ -233,7 +237,12 @@ class RaspiDataConvey implements DataConveyInterface
     {
         $request = json_decode($json, true);
 
+        $request['key'] ='ts:' . $request['dev_id'] .':'. $request['param'];
+
         if ($request['to']) {
+            if ($data = $this->goOutNoDB($request)) {
+                return $data;
+            }
             return $this->goOutReDB($request);
         }
 

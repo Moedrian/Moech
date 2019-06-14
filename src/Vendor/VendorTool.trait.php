@@ -12,7 +12,7 @@
 
 namespace Moech\Vendor;
 
-require __DIR__ . '/../vendor/autoload.php';
+require __DIR__ . '/../../vendor/autoload.php';
 
 use Moech\Data\ReDB;
 
@@ -24,11 +24,11 @@ trait VendorTool
     /**
      * Gets the ID of a customer
      *
-     * @param string $cust_name     The exact name of a customer group.
-     * @param object|null $conn     If given, it could reuse the pdo created before.
-     * @return int cust_id          The customer id.
+     * @param   string      $cust_name  The exact name of a customer group.
+     * @param   ReDB|null   $conn       If given, it could reuse the pdo created before.
+     * @return  int         cust_id     The customer id.
      */
-    public function getCustID(string $cust_name, object $conn = null): int
+    public function getCustID(string $cust_name, ReDB $conn = null): int
     {
         if ($conn === null) {
             $conn = new ReDB('vendor');
@@ -45,12 +45,12 @@ trait VendorTool
     /**
      * Gets the price of a product belonging to certain category
      *
-     * @param string $category      Potential values: 'param' and 'additional services'.
-     * @param string $item          The name of a product.
-     * @param object|null $conn     If given, it could reuse the pdo created before.
-     * @return float $price         The price of a product.
+     * @param   string      $category   Potential values: 'param' and 'additional services'.
+     * @param   string      $item       The name of a product.
+     * @param   ReDB|null   $conn       If given, it could reuse the pdo created before.
+     * @return  float       price       The price of a product.
      */
-    public function getProductPrice(string $category, string $item, object $conn = null): float
+    public function getProductPrice(string $category, string $item, ReDB $conn = null): float
     {
         if ($conn === null) {
             $conn = new ReDB('vendor');
@@ -75,11 +75,11 @@ trait VendorTool
     /**
      * Gets item list in an order
      *
-     * @param int $order_num
-     * @param object|null $conn
-     * @return array|null
+     * @param   int         $order_num
+     * @param   ReDB|null   $conn
+     * @return  array|null
      */
-    public function getOrderItems(int $order_num, object $conn = null): ?array
+    public function getOrderItems(int $order_num, ReDB $conn = null): ?array
     {
         if ($conn === null) {
             $conn = new ReDB('vendor');
@@ -98,11 +98,11 @@ trait VendorTool
      *
      * If null, then call VendorMan::allocateInstanceToDevice()
      *
-     * @param string $dev_id
-     * @param object|null $conn
-     * @return int|null
+     * @param   string    $dev_id
+     * @param   ReDB|null $conn
+     * @return  int|null
      */
-    public function getDeviceInstance(string $dev_id, object $conn = null): ?int
+    public function getDeviceInstance(string $dev_id, ReDB $conn = null): ?int
     {
         if ($conn === null) {
             $conn = new ReDB('vendor');

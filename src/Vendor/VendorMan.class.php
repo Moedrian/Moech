@@ -21,6 +21,7 @@ use Moech\Deploy\Deploy;
 
 use PDO;
 use PDOException;
+use Zend\Cache\Storage\Adapter\Redis;
 
 
 class VendorMan implements VendorManInterface
@@ -55,7 +56,7 @@ class VendorMan implements VendorManInterface
         try {
             $conn->prepare($set_query)->execute([$instance_id]);
         } catch (PDOException $e) {
-            $conn->errorLogWriter($e);
+            $conn->writeErrorLog($e);
         }
     }
 
@@ -65,10 +66,10 @@ class VendorMan implements VendorManInterface
      *
      * Not bound to customer, yet
      *
-     * @param int $instance_id
-     * @see VendorAdd::AddInstance()
-     * @param string $json
-     * @see ../test/example.json.d/vendor_side/config.json
+     * @param   int $instance_id
+     * @param   string $json
+     * @see     VendorAdd::AddInstance()
+     * @see     ../test/example.json.d/vendor_side/config.json
      */
     public function addInstanceConfig(int $instance_id, string $json): void
     {
@@ -86,7 +87,7 @@ class VendorMan implements VendorManInterface
             // Create basic databases for customer side management
             $cust_conn->prepare($customer_init_sql)->execute();
         } catch (PDOException $e) {
-            $cust_conn->errorLogWriter($e);
+            $cust_conn->writeErrorLog($e);
         }
 
         // After the config is well prepared, set the status to true
@@ -99,10 +100,10 @@ class VendorMan implements VendorManInterface
      *
      * After the order is confirmed, this method will be executed
      *
-     * @param int $instance_id
-     * @param string $cust_name
-     * @uses VendorInfo::getCustID()
-     * @throws PDOException
+     * @param   int     $instance_id
+     * @param   string  $cust_name
+     * @uses    VendorInfo::getCustID()
+     * @throws  PDOException
      */
     public function allocateInstanceToCustomer(int $instance_id, string $cust_name): void
     {
@@ -115,7 +116,7 @@ class VendorMan implements VendorManInterface
         try {
             $conn->prepare($update_query)->execute([$cust_id, $cust_name, $instance_id]);
         } catch (PDOException $e) {
-            $conn->errorLogWriter($e);
+            $conn->writeErrorLog($e);
         }
     }
 
@@ -123,10 +124,10 @@ class VendorMan implements VendorManInterface
     /**
      * Parse orders to create tables for params in correspond device database
      *
-     * @param int $order_num
-     * @uses VendorMan::allocateInstanceToDevice()
-     * @uses VendorMan::createParamTable()
-     * @throws PDOException
+     * @param   int $order_num
+     * @uses    VendorMan::allocateInstanceToDevice()
+     * @uses    VendorMan::createParamTable()
+     * @throws  PDOException
      * @todo multi-instance handling
      */
     public function parseOrder(int $order_num): void
@@ -196,7 +197,7 @@ class VendorMan implements VendorManInterface
         } catch (PDOException $e) {
 
             $cust_conn->rollBack();
-            $cust_conn->errorLogWriter($e);
+            $cust_conn->writeErrorLog($e);
         }
     }
 
@@ -206,12 +207,12 @@ class VendorMan implements VendorManInterface
      *
      * Could be used as a tool or used individually to change the instance_id.
      *
-     * @param int $instance_id
-     * @param array $devices
-     * @param object|null $conn
-     * @throws PDOException
+     * @param   int         $instance_id
+     * @param   array       $devices
+     * @param   ReDB|null   $conn
+     * @throws  PDOException
      */
-    public function allocateInstanceToDevice(int $instance_id, array $devices, object $conn = null): void
+    public function allocateInstanceToDevice(int $instance_id, array $devices, ReDB $conn = null): void
     {
         if ($conn === null) {
             $conn = new ReDB('vendor');
@@ -229,7 +230,7 @@ class VendorMan implements VendorManInterface
             $conn->commit();
         } catch (PDOException $e) {
             $conn->rollBack();
-            $conn->errorLogWriter($e);
+            $conn->writeErrorLog($e);
         }
     }
 
@@ -239,14 +240,14 @@ class VendorMan implements VendorManInterface
      *
      * @param string $param         space delimiter is allowed
      * @param string $dev_id        device id
-     * @param object $cust_conn     a 'customer' ReDB instance
-     * @param object $vendor_conn   a 'vendor' ReDB instance
+     * @param ReDB   $cust_conn     a 'customer' ReDB instance
+     * @param ReDB   $vendor_conn   a 'vendor' ReDB instance
      */
-    public function createParamTable(string $param, string $dev_id, object $cust_conn, object $vendor_conn): void
+    public function createParamTable(string $param, string $dev_id, ReDB $cust_conn, ReDB $vendor_conn): void
     {
         $param = str_replace(' ', '_', $param);
 
-        $query = 'create table '. $param .' (crt_time datetime(3) not null, value float(7,3) not null) engine=MyISAM';
+        $query = 'create table '. $param .' (crt_time datetime(3) not null, value float(9,4) not null) engine=MyISAM';
         $cust_conn->prepare($query)->execute();
 
         try {
@@ -254,7 +255,7 @@ class VendorMan implements VendorManInterface
             $update = 'update order_items set table_status = 1 where param = ? and dev_id = ?';
             $vendor_conn->prepare($update)->execute([$param, $dev_id]);
         } catch (PDOException $e) {
-            $vendor_conn->errorLogWriter($e);
+            $vendor_conn->writeErrorLog($e);
         }
     }
 

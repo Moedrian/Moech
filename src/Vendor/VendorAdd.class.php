@@ -34,7 +34,7 @@ class VendorAdd implements VendorAddInterface
     /**
      * Adds a single row of product into the database.
      *
-     * @param string $product_json
+     * @param   string $product_json
      * @example ../test/example.json.d/vendor_side/product_additional_services.json Required input type 1
      * @example ../test/example.json.d/vendor_side/product_param.json               Required input type 2
      */
@@ -74,10 +74,10 @@ class VendorAdd implements VendorAddInterface
 
 
     /**
-     * Add a new user
+     * Adds a new user
      *
-     * @param string $user_json
-     * @see ../test/example.json.d/vendor_side/vendor_user_add.json
+     * @param   string $user_json
+     * @see     ../test/example.json.d/vendor_side/vendor_user_add.json
      */
     public function addUser(string $user_json): void
     {
@@ -99,8 +99,8 @@ class VendorAdd implements VendorAddInterface
     /**
      * Updates user info after inserting
      *
-     * @param string $info_json
-     * @see ../test/example.json.d/vendor_side/vendor_user_info.json
+     * @param   string $info_json
+     * @see     ../test/example.json.d/vendor_side/vendor_user_info.json
      * @todo a password confirmation call
      */
     public function addUserInfo(string $info_json): void
@@ -121,9 +121,9 @@ class VendorAdd implements VendorAddInterface
     /**
      * This shall be the first step of the customer initialization
      *
-     * @param string $customer_json
-     * @see ../test/example.json.d/vendor_side/customer_sign_up.json    Required input
-     * @see VendorAdd::addCustomerInfo()                                Next step
+     * @param   string $customer_json
+     * @see     ../test/example.json.d/vendor_side/customer_sign_up.json    Required input
+     * @see     VendorAdd::addCustomerInfo()                                Next step
      */
     public function addCustomer(string $customer_json): void
     {
@@ -147,7 +147,7 @@ class VendorAdd implements VendorAddInterface
 
             $conn->commit();
         } catch (PDOException $e) {
-            $conn->errorLogWriter($e);
+            $conn->writeErrorLog($e);
             $conn->rollBack();
         }
 
@@ -157,9 +157,9 @@ class VendorAdd implements VendorAddInterface
     /**
      * Adds detailed information of a customer
      *
-     * @param string $info_json
-     * @see ../test/example.json.d/vendor_side/customer_info.json   Required input
-     * @see VendorAdd::addDevice()                  Next step
+     * @param   string $info_json
+     * @see     ../test/example.json.d/vendor_side/customer_info.json   Required input
+     * @see     VendorAdd::addDevice()                                  Next step
      */
     public function addCustomerInfo(string $info_json): void
     {
@@ -176,9 +176,9 @@ class VendorAdd implements VendorAddInterface
     /**
      * Adds device for a customer signed up before
      *
-     * @param string $dev_json
-     * @see ../test/example.json.d/vendor_side/device.json  Required input
-     * @see Vendor::addDeviceParamInfo()    Next step
+     * @param   string $dev_json
+     * @see     ../test/example.json.d/vendor_side/device.json  Required input
+     * @see     Vendor::addDeviceParamInfo()                    Next step
      */
     public function addDevice(string $dev_json): void
     {
@@ -201,7 +201,7 @@ class VendorAdd implements VendorAddInterface
 
             $conn->commit();
         } catch (PDOException $e) {
-            $conn->errorLogWriter($e);
+            $conn->writeErrorLog($e);
             $conn->rollBack();
         }
     }
@@ -210,9 +210,9 @@ class VendorAdd implements VendorAddInterface
     /**
      * Adds params need to be monitored for device(s)
      *
-     * @param string $param_info_json
-     * @see ../test/example.json.d/vendor_side/param_info.json  Required input
-     * @see Vendor::addOrder()                  Next step
+     * @param   string $param_info_json
+     * @see     ../test/example.json.d/vendor_side/param_info.json  Required input
+     * @see     Vendor::addOrder()                                  Next step
      */
     public function addDeviceParamInfo(string $param_info_json): void
     {
@@ -234,7 +234,7 @@ class VendorAdd implements VendorAddInterface
 
             $conn->commit();
         } catch (PDOException $e) {
-            $conn->errorLogWriter($e);
+            $conn->writeErrorLog($e);
             $conn->rollBack();
         }
     }
@@ -243,9 +243,9 @@ class VendorAdd implements VendorAddInterface
     /**
      * Adds order record and order items
      *
-     * @param string $orders_json
-     * @see ../test/example.json.d/vendor_side/order.json   Required input
-     * @see VendorMan                       Further management
+     * @param   string $orders_json
+     * @see     ../test/example.json.d/vendor_side/order.json   Required input
+     * @see     VendorMan                                       Further management
      * @todo bind orders to params added before
      * @todo the payment system
      */
@@ -282,7 +282,7 @@ class VendorAdd implements VendorAddInterface
             $conn->commit();
 
         } catch (PDOException $e) {
-            $conn->errorLogWriter($e);
+            $conn->writeErrorLog($e);
             $conn->rollBack();
         }
     }

@@ -85,7 +85,7 @@ trait VendorTool
             $conn = new ReDB('vendor');
         }
 
-        $query = 'select * from order_items where order_num = ?';
+        $query = "select * from order_items where order_num = ? and category = 'param'";
         $stmt = $conn->prepare($query);
         $stmt->execute([$order_num]);
 

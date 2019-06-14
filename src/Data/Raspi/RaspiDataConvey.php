@@ -105,6 +105,53 @@ class RaspiDataConvey implements DataConveyInterface
 
 
     /**
+     * A parody, a harder hard-code parody
+     *
+     * @param   array $raw the decoded json array
+     * @return  array $queries, included Redis and MySQL
+     */
+    public function queryGlueParody(array $raw): array
+    {
+        $normal_params = $raw['order'];
+        $normal_data = $raw['data'];
+
+        $time = (string)$raw['time'];
+        $timestamp = (string)strtotime($time);
+
+        $id = $raw['id'];
+
+        $queries = [];
+
+        for ($i = 0; $i < 4; $i++) {
+            $table = $id.'.'.$normal_params[$i];
+            $queries['ReDB'][] = 'insert into ' . $table . " values ('".$time."',".$normal_data[$i].')';
+            $queries['NoDB'][$id.':'.$normal_params[$i]][$timestamp] = $normal_data[$i];
+        }
+
+        // Yay HaRd CoDe BaD bAd
+        $vib_data = $raw['Vibration'];
+        $count = count($vib_data);
+
+        $interval = floor(1000 / count($vib_data));
+
+        $pre_vib_query = [];
+
+        for ($i = 0; $i < $count; $i++) {
+
+            $precise_timestamp = $timestamp.'.'.(string)$interval * $i;
+            $precise_time = $time.'.'.(string)$interval * $i;
+
+            $pre_vib_query[] = "('" . $precise_time. "'," . $vib_data[$i] .')';
+            $queries['NoDB'][$id.':Vibration'][$precise_timestamp] = $vib_data[$i];
+        }
+
+        $queries['ReDB'][] = 'insert into ' . $id . '.Vibration values ' . implode(',', $pre_vib_query);
+
+        return $queries;
+    }
+
+
+    /**
      * Inserts into SQL database
      *
      * @param array $data usually $data['ReDB'] from queryGlue()
@@ -167,6 +214,43 @@ class RaspiDataConvey implements DataConveyInterface
     }
 
 
+    /**
+     * Fetches data according to the request
+     *
+     * Simply this is a redirection
+     * If there are records in redis conforms the query condition,
+     * then use goOutNoDB, else it will get data from MySQL via
+     * goOutReDB.
+     *
+     * @param   string $json the raw data sent from raspberry pi
+     * @return  string json formatted dictionary requested
+     */
+    public function fetchData(string $json): string
+    {
+        $request = json_decode($json, true);
+
+        $request['key'] ='ts:' . $request['dev_id'] .':'. $request['param'];
+
+        if ($request['to']) {
+            if ($data = $this->goOutNoDB($request)) {
+                return $data;
+            }
+            return $this->goOutReDB($request);
+        }
+
+        return $this->goOutNoDB($request);
+    }
+
+
+    /**
+     * Fetch data from Redis
+     *
+     * The shitty part is the data returned must be transferred
+     * back to the standard time format. Ah shit here we go again
+     *
+     * @param   array $req
+     * @return  string
+     */
     public function goOutNoDB(array $req): string
     {
 
@@ -184,12 +268,13 @@ class RaspiDataConvey implements DataConveyInterface
         // But this maybe implemented in alarm module
         // That's why namespace matters
 
-        $raw_data = $client->zrangebyscore($req['key'], $min, $max, ['withscores' => true]);
+        // Damn, you don't need to set `WITHSCORES` = true
+        // since those keys contains both value and timestamp
+        $combs = $client->zrangebyscore($req['key'], $min, $max);
 
         $pre_data = [];
 
-        $combs = array_keys($raw_data);
-
+        // This is the tricky part
         foreach ($combs as $comb) {
             $comb = explode(':',$comb);
             $pre_time = explode('.', $comb[1]);
@@ -205,6 +290,12 @@ class RaspiDataConvey implements DataConveyInterface
     }
 
 
+    /**
+     * Fetches runtime data from MySQL
+     *
+     * @param array $request
+     * @return string
+     */
     public function goOutReDB(array $request): string
     {
         $conn = new ReDB('localhost', 30001);
@@ -232,20 +323,4 @@ class RaspiDataConvey implements DataConveyInterface
         return json_encode($pkg);
     }
 
-
-    public function fetchData(string $json): string
-    {
-        $request = json_decode($json, true);
-
-        $request['key'] ='ts:' . $request['dev_id'] .':'. $request['param'];
-
-        if ($request['to']) {
-            if ($data = $this->goOutNoDB($request)) {
-                return $data;
-            }
-            return $this->goOutReDB($request);
-        }
-
-        return $this->goOutNoDB($request);
-    }
 }

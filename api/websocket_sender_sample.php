@@ -7,7 +7,7 @@ require __DIR__ . '/../vendor/autoload.php';
 use Workerman\Worker;
 use Moech\Data\Raspi\RaspiDataConvey;
 
-$ws_worker = new Worker('tcp://xxx.xxx.xxx.xxx:xxxxx');
+$ws_worker = new Worker('websocket://xxx.xxx.xxx.xxx:xxxxx');
 
 $ws_worker->count = 4;
 
@@ -15,12 +15,9 @@ $ws_worker->onConnect = static function ($connection)
 {
     $connection->onMessage = static function ($connection, $data)
     {
-        $data = json_decode($data, true);
-        $testRun = new RaspiDataConvey();
+        $run = new RaspiDataConvey();
 
-        $queries = $testRun->queryGlue($data);
-        $testRun->goInReDB($queries['ReDB']);
-        $testRun->goInNoDB($queries['NoDB']);
+        $connection->send($run->fetchData($data));
     };
 };
 

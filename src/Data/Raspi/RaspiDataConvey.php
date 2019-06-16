@@ -286,6 +286,12 @@ class RaspiDataConvey implements DataConveyInterface
 
         $client = null;
 
+        // If there are no data in Redis, try to return data from SQL
+        if (!$data) {
+            $req['to'] = $max;
+            return $this->goOutReDB($req);
+        }
+
         return $data;
     }
 
